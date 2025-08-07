@@ -1,0 +1,82 @@
+{
+  "expo": {
+    "name": "TCG助手",
+    "slug": "tcg-assistant",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1A1F71"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.tcgassistant.app",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSCameraUsageDescription": "此應用程式需要相機權限來進行卡牌辨識",
+        "NSPhotoLibraryUsageDescription": "此應用程式需要相簿權限來選擇卡牌照片"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1A1F71"
+      },
+      "package": "com.tcgassistant.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "VIBRATE",
+        "WAKE_LOCK"
+      ],
+      "allowBackup": true,
+      "usesCleartextTraffic": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "static",
+      "build": {
+        "babel": {
+          "include": [
+            "**/*.js",
+            "**/*.jsx",
+            "**/*.ts",
+            "**/*.tsx"
+          ]
+        }
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "允許 $(PRODUCT_NAME) 使用相機進行卡牌辨識"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "允許 $(PRODUCT_NAME) 存取相簿來選擇卡牌照片"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    },
+    "owner": "tcgassistant"
+  }
+}

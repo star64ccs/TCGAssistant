@@ -1,0 +1,75 @@
+// TCG助手應用程式顏色主題
+export const COLORS = {
+  // 主色調
+  PRIMARY: '#1A1F71',        // 深藍
+  SECONDARY: '#6C63FF',      // 電紫
+  
+  // 輔助色
+  GRAY_LIGHT: '#D1D1D1',     // 銀灰
+  BLACK: '#000000',          // 黑
+  
+  // 強調色
+  ACCENT_YELLOW: '#FFD700',  // 亮黃
+  ACCENT_RED: '#FF3B3B',     // 紅
+  
+  // 背景色
+  BACKGROUND_PRIMARY: '#FFFFFF',
+  BACKGROUND_SECONDARY: '#F8F9FA',
+  BACKGROUND_DARK: '#1A1A1A',
+  
+  // 文字色
+  TEXT_PRIMARY: '#000000',
+  TEXT_SECONDARY: '#666666',
+  TEXT_LIGHT: '#999999',
+  TEXT_WHITE: '#FFFFFF',
+  
+  // 狀態色
+  SUCCESS: '#28A745',
+  WARNING: '#FFC107',
+  ERROR: '#DC3545',
+  INFO: '#17A2B8',
+  
+  // 漸層色
+  GRADIENT_PRIMARY: ['#1A1F71', '#6C63FF'],
+  GRADIENT_SECONDARY: ['#FFD700', '#FFA500'],
+  GRADIENT_DANGER: ['#FF3B3B', '#DC3545'],
+  
+  // 透明度
+  OVERLAY: 'rgba(0, 0, 0, 0.5)',
+  SHADOW: 'rgba(0, 0, 0, 0.1)',
+  
+  // 卡片色
+  CARD_BACKGROUND: '#FFFFFF',
+  CARD_BORDER: '#E9ECEF',
+  CARD_SHADOW: 'rgba(0, 0, 0, 0.08)',
+  
+  // 按鈕色
+  BUTTON_PRIMARY: '#1A1F71',
+  BUTTON_SECONDARY: '#6C63FF',
+  BUTTON_SUCCESS: '#28A745',
+  BUTTON_DANGER: '#FF3B3B',
+  BUTTON_DISABLED: '#CCCCCC',
+  
+  // 輸入框色
+  INPUT_BORDER: '#D1D1D1',
+  INPUT_FOCUS: '#6C63FF',
+  INPUT_ERROR: '#FF3B3B',
+  
+  // 評分等級色
+  GRADE_MINT: '#28A745',
+  GRADE_NM: '#17A2B8',
+  GRADE_LP: '#FFC107',
+  GRADE_MP: '#FF8C00',
+  GRADE_HP: '#FF3B3B',
+  GRADE_PERFECT: '#28A745',
+  GRADE_GOOD: '#17A2B8',
+  GRADE_AVERAGE: '#FFC107',
+  GRADE_POOR: '#FF3B3B',
+  
+  // 價格趨勢色
+  PRICE_UP: '#28A745',
+  PRICE_DOWN: '#FF3B3B',
+  PRICE_STABLE: '#6C757D',
+};
+
+export default COLORS;
