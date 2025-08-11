@@ -7,66 +7,64 @@ const Collection = sequelize.define('Collection', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   },
   userId: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: User,
-      key: 'id'
-    }
+      key: 'id',
+    },
   },
   cardId: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: Card,
-      key: 'id'
-    }
+      key: 'id',
+    },
   },
   purchaseDate: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
   purchasePrice: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: true
+    allowNull: true,
   },
   currentPrice: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: true
+    allowNull: true,
   },
   isFavorite: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   condition: {
     type: DataTypes.ENUM('mint', 'near_mint', 'excellent', 'good', 'light_played', 'played', 'poor'),
-    defaultValue: 'near_mint'
+    defaultValue: 'near_mint',
   },
   quantity: {
     type: DataTypes.INTEGER,
-    defaultValue: 1
+    defaultValue: 1,
   },
   notes: {
     type: DataTypes.TEXT,
-    allowNull: true
-  }
+    allowNull: true,
+  },
 }, {
   tableName: 'collections',
   indexes: [
     {
-      fields: ['userId']
+      fields: ['userId'],
     },
-    {
-      fields: ['cardId']
-    },
+    { fields: ['cardId'] },
     {
       fields: ['userId', 'cardId'],
-      unique: true
-    }
-  ]
+      unique: true,
+    },
+  ],
 });
 
 // 關聯關係

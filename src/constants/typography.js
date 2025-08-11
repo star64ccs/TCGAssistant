@@ -11,7 +11,7 @@ export const FONTS = {
     ios: 'Montserrat-Bold',
     android: 'Montserrat-Bold',
   }),
-  
+
   // 內文字體
   BODY_PRIMARY: Platform.select({
     ios: 'Roboto-Regular',
@@ -21,7 +21,7 @@ export const FONTS = {
     ios: 'NotoSans-Regular',
     android: 'NotoSans-Regular',
   }),
-  
+
   // 特殊字體
   MONOSPACE: Platform.select({
     ios: 'SFMono-Regular',
@@ -35,28 +35,28 @@ export const FONT_SIZES = {
   TITLE_LARGE: 32,
   TITLE_MEDIUM: 24,
   TITLE_SMALL: 20,
-  
+
   // 副標題
   SUBTITLE_LARGE: 18,
   SUBTITLE_MEDIUM: 16,
   SUBTITLE_SMALL: 14,
-  
+
   // 內文大小
   BODY_LARGE: 16,
   BODY_MEDIUM: 14,
   BODY_SMALL: 12,
   BODY_XSMALL: 10,
-  
+
   // 按鈕文字
   BUTTON_LARGE: 18,
   BUTTON_MEDIUM: 16,
   BUTTON_SMALL: 14,
-  
+
   // 標籤文字
   LABEL_LARGE: 14,
   LABEL_MEDIUM: 12,
   LABEL_SMALL: 10,
-  
+
   // 特殊用途
   CAPTION: 12,
   OVERLINE: 10,
@@ -67,24 +67,19 @@ export const LINE_HEIGHTS = {
   TITLE_LARGE: 40,
   TITLE_MEDIUM: 32,
   TITLE_SMALL: 28,
-  
   SUBTITLE_LARGE: 24,
   SUBTITLE_MEDIUM: 20,
   SUBTITLE_SMALL: 18,
-  
   BODY_LARGE: 24,
   BODY_MEDIUM: 20,
   BODY_SMALL: 16,
   BODY_XSMALL: 14,
-  
   BUTTON_LARGE: 24,
   BUTTON_MEDIUM: 20,
   BUTTON_SMALL: 18,
-  
   LABEL_LARGE: 20,
   LABEL_MEDIUM: 16,
   LABEL_SMALL: 14,
-  
   CAPTION: 16,
   OVERLINE: 14,
 };
@@ -121,7 +116,7 @@ export const TEXT_STYLES = {
     lineHeight: LINE_HEIGHTS.TITLE_SMALL,
     fontWeight: FONT_WEIGHTS.SEMIBOLD,
   },
-  
+
   // 副標題樣式
   SUBTITLE_LARGE: {
     fontFamily: FONTS.TITLE_SECONDARY,
@@ -141,7 +136,7 @@ export const TEXT_STYLES = {
     lineHeight: LINE_HEIGHTS.SUBTITLE_SMALL,
     fontWeight: FONT_WEIGHTS.MEDIUM,
   },
-  
+
   // 內文樣式
   BODY_LARGE: {
     fontFamily: FONTS.BODY_PRIMARY,
@@ -167,7 +162,7 @@ export const TEXT_STYLES = {
     lineHeight: LINE_HEIGHTS.BODY_XSMALL,
     fontWeight: FONT_WEIGHTS.REGULAR,
   },
-  
+
   // 按鈕樣式
   BUTTON_LARGE: {
     fontFamily: FONTS.BODY_PRIMARY,
@@ -187,7 +182,7 @@ export const TEXT_STYLES = {
     lineHeight: LINE_HEIGHTS.BUTTON_SMALL,
     fontWeight: FONT_WEIGHTS.MEDIUM,
   },
-  
+
   // 標籤樣式
   LABEL_LARGE: {
     fontFamily: FONTS.BODY_SECONDARY,
@@ -207,7 +202,7 @@ export const TEXT_STYLES = {
     lineHeight: LINE_HEIGHTS.LABEL_SMALL,
     fontWeight: FONT_WEIGHTS.REGULAR,
   },
-  
+
   // 特殊樣式
   CAPTION: {
     fontFamily: FONTS.BODY_PRIMARY,

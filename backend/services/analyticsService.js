@@ -22,17 +22,18 @@ class AnalyticsService {
         action: action || '',
         label: label || '',
         value: value || null,
-        properties: properties || {},
+        properties: properties || {
+        },
         timestamp: new Date(),
-        sessionId: this.generateSessionId(userId)
+        sessionId: this.generateSessionId(userId),
       };
 
       this.events.set(eventId, eventData);
-      
+
       // 更新用戶統計
       await this.updateUserStats(userId, eventData);
-      
-      logger.info(`事件已記錄: ${event} 用戶 ${userId}`);
+
+      logger.info(`事件已記錄: ${ event } 用戶 ${ userId }`);
       return eventData;
     } catch (error) {
       logger.error('記錄用戶行為錯誤:', error);
@@ -41,10 +42,11 @@ class AnalyticsService {
   }
 
   // 獲取用戶使用統計
-  async getUsageStats(userId, options = {}) {
+  getUsageStats(userId, options = {}) {
     try {
-      const { period = '30d', feature, groupBy = 'day' } = options;
-      
+      const { period = '30d', feature, groupBy = 'day',
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -54,21 +56,22 @@ class AnalyticsService {
       const stats = {
         totalEvents: recentEvents.length,
         uniqueSessions: new Set(recentEvents.map(e => e.sessionId)).size,
-        byFeature: {},
+        byFeature: {
+        },
         byCategory: {},
         byDay: {},
         topActions: this.getTopActions(recentEvents),
-        averageEventsPerSession: this.calculateAverageEventsPerSession(recentEvents)
+        averageEventsPerSession: this.calculateAverageEventsPerSession(recentEvents),
       };
 
       // 按功能統計
       recentEvents.forEach(event => {
         const featureKey = event.category;
         stats.byFeature[featureKey] = (stats.byFeature[featureKey] || 0) + 1;
-        
+
         const categoryKey = event.category;
         stats.byCategory[categoryKey] = (stats.byCategory[categoryKey] || 0) + 1;
-        
+
         const dayKey = event.timestamp.toISOString().split('T')[0];
         stats.byDay[dayKey] = (stats.byDay[dayKey] || 0) + 1;
       });
@@ -81,10 +84,11 @@ class AnalyticsService {
   }
 
   // 獲取功能使用趨勢
-  async getUsageTrends(userId, options = {}) {
+  getUsageTrends(userId, options = {}) {
     try {
-      const { period = '30d', feature, interval = 'day' } = options;
-      
+      const { period = '30d', feature, interval = 'day',
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -92,7 +96,7 @@ class AnalyticsService {
       const recentEvents = events.filter(e => new Date(e.timestamp) >= cutoffDate);
 
       const trends = this.groupEventsByInterval(recentEvents, interval);
-      
+
       return trends;
     } catch (error) {
       logger.error('獲取使用趨勢錯誤:', error);
@@ -101,10 +105,11 @@ class AnalyticsService {
   }
 
   // 獲取性能指標
-  async getPerformanceMetrics(userId, options = {}) {
+  getPerformanceMetrics(userId, options = {}) {
     try {
-      const { period = '7d', metric, endpoint } = options;
-      
+      const { period = '7d', metric, endpoint,
+      } = options;
+
       const metrics = Array.from(this.performanceMetrics.values())
         .filter(m => m.userId === userId);
 
@@ -116,7 +121,7 @@ class AnalyticsService {
         errorRate: this.calculateErrorRate(recentMetrics),
         throughput: this.calculateThroughput(recentMetrics),
         byEndpoint: this.groupMetricsByEndpoint(recentMetrics),
-        byMetric: this.groupMetricsByType(recentMetrics)
+        byMetric: this.groupMetricsByType(recentMetrics),
       };
 
       return performanceStats;
@@ -127,10 +132,11 @@ class AnalyticsService {
   }
 
   // 獲取錯誤統計
-  async getErrorStats(userId, options = {}) {
+  getErrorStats(userId, options = {}) {
     try {
-      const { period = '7d', severity, type } = options;
-      
+      const { period = '7d', severity, type,
+      } = options;
+
       const errors = Array.from(this.errorLogs.values())
         .filter(e => e.userId === userId);
 
@@ -143,7 +149,7 @@ class AnalyticsService {
         byType: this.groupErrorsByType(recentErrors),
         byEndpoint: this.groupErrorsByEndpoint(recentErrors),
         errorRate: this.calculateErrorRate(recentErrors),
-        topErrors: this.getTopErrors(recentErrors)
+        topErrors: this.getTopErrors(recentErrors),
       };
 
       return errorStats;
@@ -154,10 +160,11 @@ class AnalyticsService {
   }
 
   // 獲取用戶行為分析
-  async getUserBehavior(userId, options = {}) {
+  getUserBehavior(userId, options = {}) {
     try {
-      const { period = '30d', action, page } = options;
-      
+      const { period = '30d', action, page,
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -169,7 +176,7 @@ class AnalyticsService {
         featureUsage: this.analyzeFeatureUsage(recentEvents),
         userJourney: this.analyzeUserJourney(recentEvents),
         engagementMetrics: this.calculateEngagementMetrics(recentEvents),
-        retentionData: this.calculateRetentionData(recentEvents)
+        retentionData: this.calculateRetentionData(recentEvents),
       };
 
       return behavior;
@@ -180,10 +187,11 @@ class AnalyticsService {
   }
 
   // 獲取轉換漏斗
-  async getConversionFunnel(userId, options = {}) {
+  getConversionFunnel(userId, options = {}) {
     try {
-      const { steps, period = '30d', groupBy = 'day' } = options;
-      
+      const { steps, period = '30d', groupBy = 'day',
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -191,7 +199,7 @@ class AnalyticsService {
       const recentEvents = events.filter(e => new Date(e.timestamp) >= cutoffDate);
 
       const funnel = this.calculateFunnel(recentEvents, steps);
-      
+
       return funnel;
     } catch (error) {
       logger.error('獲取轉換漏斗錯誤:', error);
@@ -200,10 +208,11 @@ class AnalyticsService {
   }
 
   // 獲取留存分析
-  async getRetentionAnalysis(userId, options = {}) {
+  getRetentionAnalysis(userId, options = {}) {
     try {
-      const { period = '30d', cohort = 'week', interval = 'day' } = options;
-      
+      const { period = '30d', cohort = 'week', interval = 'day',
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -211,7 +220,7 @@ class AnalyticsService {
       const recentEvents = events.filter(e => new Date(e.timestamp) >= cutoffDate);
 
       const retention = this.calculateRetention(recentEvents, cohort, interval);
-      
+
       return retention;
     } catch (error) {
       logger.error('獲取留存分析錯誤:', error);
@@ -220,10 +229,11 @@ class AnalyticsService {
   }
 
   // 獲取熱門功能排行
-  async getPopularFeatures(userId, options = {}) {
+  getPopularFeatures(userId, options = {}) {
     try {
-      const { period = '7d', limit = 10, category } = options;
-      
+      const { period = '7d', limit = 10, category,
+      } = options;
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId);
 
@@ -231,7 +241,7 @@ class AnalyticsService {
       const recentEvents = events.filter(e => new Date(e.timestamp) >= cutoffDate);
 
       const popularFeatures = this.getTopFeatures(recentEvents, limit, category);
-      
+
       return popularFeatures;
     } catch (error) {
       logger.error('獲取熱門功能排行錯誤:', error);
@@ -240,14 +250,14 @@ class AnalyticsService {
   }
 
   // 獲取系統健康狀態
-  async getSystemHealth() {
+  getSystemHealth() {
     try {
       const now = new Date();
       const lastHour = new Date(now.getTime() - 60 * 60 * 1000);
-      
+
       const recentEvents = Array.from(this.events.values())
         .filter(e => new Date(e.timestamp) >= lastHour);
-      
+
       const recentErrors = Array.from(this.errorLogs.values())
         .filter(e => new Date(e.timestamp) >= lastHour);
 
@@ -258,7 +268,7 @@ class AnalyticsService {
         eventsPerMinute: recentEvents.length / 60,
         errorRate: recentErrors.length / Math.max(recentEvents.length, 1),
         responseTime: this.calculateAverageResponseTime(recentEvents),
-        lastUpdated: now
+        lastUpdated: now,
       };
 
       // 設置健康狀態
@@ -277,12 +287,13 @@ class AnalyticsService {
   }
 
   // 獲取實時監控數據
-  async getRealtimeMetrics(userId, options = {}) {
+  getRealtimeMetrics(userId, options = {}) {
     try {
-      const { metric, duration = '1h' } = options;
-      
+      const { metric, duration = '1h',
+      } = options;
+
       const cutoffTime = new Date(Date.now() - this.parseDuration(duration));
-      
+
       const events = Array.from(this.events.values())
         .filter(e => e.userId === userId && new Date(e.timestamp) >= cutoffTime);
 
@@ -291,7 +302,7 @@ class AnalyticsService {
         eventsPerMinute: this.calculateEventsPerMinute(events),
         topEvents: this.getTopEvents(events, 5),
         recentActivity: events.slice(-10).reverse(),
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       return realtimeData;
@@ -304,13 +315,15 @@ class AnalyticsService {
   // 導出分析報告
   async exportAnalyticsReport(userId, options = {}) {
     try {
-      const { type, period, format = 'json', filters } = options;
-      
+      const { type, period, format = 'json', filters,
+      } = options;
+
       let reportData;
-      
+
       switch (type) {
         case 'usage':
-          reportData = await this.getUsageStats(userId, { period });
+          reportData = await this.getUsageStats(userId, { period,
+          });
           break;
         case 'performance':
           reportData = await this.getPerformanceMetrics(userId, { period });
@@ -322,7 +335,7 @@ class AnalyticsService {
           reportData = await this.getErrorStats(userId, { period });
           break;
         default:
-          throw new Error(`不支持的分析類型: ${type}`);
+          throw new Error(`不支持的分析類型: ${ type }`);
       }
 
       if (format === 'csv') {
@@ -335,7 +348,7 @@ class AnalyticsService {
         format,
         data: reportData,
         exportedAt: new Date(),
-        userId
+        userId,
       };
     } catch (error) {
       logger.error('導出分析報告錯誤:', error);
@@ -347,11 +360,12 @@ class AnalyticsService {
   async updateAnalyticsPreferences(userId, preferences) {
     try {
       const currentPreferences = await this.getAnalyticsPreferences(userId);
-      const updatedPreferences = { ...currentPreferences, ...preferences, updatedAt: new Date() };
-      
+      const updatedPreferences = { ...currentPreferences, ...preferences, updatedAt: new Date(),
+      };
+
       this.analyticsPreferences.set(userId, updatedPreferences);
-      
-      logger.info(`分析偏好已更新: ${userId}`);
+
+      logger.info(`分析偏好已更新: ${ userId }`);
       return updatedPreferences;
     } catch (error) {
       logger.error('更新分析偏好錯誤:', error);
@@ -360,7 +374,7 @@ class AnalyticsService {
   }
 
   // 獲取分析偏好
-  async getAnalyticsPreferences(userId) {
+  getAnalyticsPreferences(userId) {
     try {
       const preferences = this.analyticsPreferences.get(userId);
       if (!preferences) {
@@ -371,13 +385,13 @@ class AnalyticsService {
           exportFormat: 'json',
           privacyLevel: 'standard',
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
-        
+
         this.analyticsPreferences.set(userId, defaultPreferences);
         return defaultPreferences;
       }
-      
+
       return preferences;
     } catch (error) {
       logger.error('獲取分析偏好錯誤:', error);
@@ -387,7 +401,7 @@ class AnalyticsService {
 
   // 輔助方法
   generateSessionId(userId) {
-    return `${userId}_${Date.now()}`;
+    return `${userId }_${ Date.now() }`;
   }
 
   updateUserStats(userId, eventData) {
@@ -395,13 +409,13 @@ class AnalyticsService {
       totalEvents: 0,
       lastActivity: null,
       sessions: new Set(),
-      features: new Map()
+      features: new Map(),
     };
 
     userStats.totalEvents++;
     userStats.lastActivity = eventData.timestamp;
     userStats.sessions.add(eventData.sessionId);
-    
+
     const featureCount = userStats.features.get(eventData.category) || 0;
     userStats.features.set(eventData.category, featureCount + 1);
 
@@ -415,9 +429,9 @@ class AnalyticsService {
   }
 
   getTopActions(events) {
-    const actionCounts = {};
+    const actionCounts = { };
     events.forEach(event => {
-      const key = `${event.category}:${event.action}`;
+      const key = `${event.category }:${ event.action }`;
       actionCounts[key] = (actionCounts[key] || 0) + 1;
     });
 
@@ -433,11 +447,11 @@ class AnalyticsService {
   }
 
   groupEventsByInterval(events, interval) {
-    const groups = {};
+    const groups = { };
     events.forEach(event => {
       const date = new Date(event.timestamp);
       let key;
-      
+
       switch (interval) {
         case 'hour':
           key = date.toISOString().slice(0, 13);
@@ -456,7 +470,7 @@ class AnalyticsService {
         default:
           key = date.toISOString().slice(0, 10);
       }
-      
+
       groups[key] = (groups[key] || 0) + 1;
     });
 
@@ -466,33 +480,42 @@ class AnalyticsService {
   }
 
   calculateAverageResponseTime(metrics) {
-    if (metrics.length === 0) return 0;
+    if (metrics.length === 0) {
+      return 0;
+    }
     const totalTime = metrics.reduce((sum, m) => sum + (m.responseTime || 0), 0);
     return totalTime / metrics.length;
   }
 
   calculateErrorRate(metrics) {
-    if (metrics.length === 0) return 0;
+    if (metrics.length === 0) {
+      return 0;
+    }
     const errors = metrics.filter(m => m.error);
     return errors.length / metrics.length;
   }
 
   calculateThroughput(metrics) {
-    if (metrics.length === 0) return 0;
+    if (metrics.length === 0) {
+      return 0;
+    }
     const timeSpan = Math.max(1, (Date.now() - Math.min(...metrics.map(m => new Date(m.timestamp)))) / 1000);
     return metrics.length / timeSpan;
   }
 
   groupMetricsByEndpoint(metrics) {
-    const groups = {};
+    const groups = { };
     metrics.forEach(m => {
       const endpoint = m.endpoint || 'unknown';
       if (!groups[endpoint]) {
-        groups[endpoint] = { count: 0, totalTime: 0, errors: 0 };
+        groups[endpoint] = { count: 0, totalTime: 0, errors: 0,
+        };
       }
       groups[endpoint].count++;
       groups[endpoint].totalTime += m.responseTime || 0;
-      if (m.error) groups[endpoint].errors++;
+      if (m.error) {
+        groups[endpoint].errors++;
+      }
     });
 
     Object.keys(groups).forEach(endpoint => {
@@ -504,7 +527,7 @@ class AnalyticsService {
   }
 
   groupMetricsByType(metrics) {
-    const groups = {};
+    const groups = { };
     metrics.forEach(m => {
       const type = m.metric || 'unknown';
       groups[type] = (groups[type] || 0) + 1;
@@ -513,7 +536,7 @@ class AnalyticsService {
   }
 
   groupErrorsBySeverity(errors) {
-    const groups = {};
+    const groups = { };
     errors.forEach(e => {
       const severity = e.severity || 'unknown';
       groups[severity] = (groups[severity] || 0) + 1;
@@ -522,7 +545,7 @@ class AnalyticsService {
   }
 
   groupErrorsByType(errors) {
-    const groups = {};
+    const groups = { };
     errors.forEach(e => {
       const type = e.type || 'unknown';
       groups[type] = (groups[type] || 0) + 1;
@@ -531,7 +554,7 @@ class AnalyticsService {
   }
 
   groupErrorsByEndpoint(errors) {
-    const groups = {};
+    const groups = { };
     errors.forEach(e => {
       const endpoint = e.endpoint || 'unknown';
       groups[endpoint] = (groups[endpoint] || 0) + 1;
@@ -540,7 +563,7 @@ class AnalyticsService {
   }
 
   getTopErrors(errors) {
-    const errorCounts = {};
+    const errorCounts = { };
     errors.forEach(e => {
       const key = e.message || e.type || 'unknown';
       errorCounts[key] = (errorCounts[key] || 0) + 1;
@@ -553,7 +576,7 @@ class AnalyticsService {
   }
 
   analyzeSessionPatterns(events) {
-    const sessions = {};
+    const sessions = { };
     events.forEach(e => {
       if (!sessions[e.sessionId]) {
         sessions[e.sessionId] = [];
@@ -564,7 +587,7 @@ class AnalyticsService {
     const patterns = {
       averageSessionLength: 0,
       commonPaths: [],
-      sessionDurations: []
+      sessionDurations: [],
     };
 
     Object.values(sessions).forEach(sessionEvents => {
@@ -577,11 +600,12 @@ class AnalyticsService {
   }
 
   analyzeFeatureUsage(events) {
-    const featureUsage = {};
+    const featureUsage = { };
     events.forEach(e => {
       const feature = e.category;
       if (!featureUsage[feature]) {
-        featureUsage[feature] = { count: 0, users: new Set() };
+        featureUsage[feature] = { count: 0, users: new Set(),
+        };
       }
       featureUsage[feature].count++;
       featureUsage[feature].users.add(e.userId);
@@ -601,7 +625,7 @@ class AnalyticsService {
       .map(e => ({
         step: e.action,
         timestamp: e.timestamp,
-        category: e.category
+        category: e.category,
       }));
 
     return journey;
@@ -610,26 +634,26 @@ class AnalyticsService {
   calculateEngagementMetrics(events) {
     const sessions = new Set(events.map(e => e.sessionId));
     const uniqueFeatures = new Set(events.map(e => e.category));
-    
+
     return {
       totalSessions: sessions.size,
       uniqueFeatures: uniqueFeatures.size,
       eventsPerSession: events.length / sessions.size,
-      featureDiversity: uniqueFeatures.size / Math.max(events.length, 1)
+      featureDiversity: uniqueFeatures.size / Math.max(events.length, 1),
     };
   }
 
   calculateRetentionData(events) {
-    // 簡化的留存計算
+  // 簡化的留存計算
     const sessions = new Set(events.map(e => e.sessionId));
     const firstSession = Math.min(...Array.from(sessions).map(s => new Date(s.split('_')[1])));
     const lastSession = Math.max(...Array.from(sessions).map(s => new Date(s.split('_')[1])));
-    
+
     return {
       totalSessions: sessions.size,
       firstSession,
       lastSession,
-      sessionSpan: lastSession - firstSession
+      sessionSpan: lastSession - firstSession,
     };
   }
 
@@ -641,14 +665,14 @@ class AnalyticsService {
       const stepEvents = events.filter(e => e.action === step);
       const count = stepEvents.length;
       const conversionRate = previousCount > 0 ? (count / previousCount) * 100 : 0;
-      
+
       funnel.push({
         step,
         count,
         conversionRate,
-        dropOff: previousCount - count
+        dropOff: previousCount - count,
       });
-      
+
       previousCount = count;
     });
 
@@ -656,12 +680,13 @@ class AnalyticsService {
   }
 
   calculateRetention(events, cohort, interval) {
-    // 簡化的留存計算
-    const cohorts = {};
+  // 簡化的留存計算
+    const cohorts = {
+    };
     events.forEach(e => {
       const date = new Date(e.timestamp);
       let cohortKey;
-      
+
       switch (cohort) {
         case 'day':
           cohortKey = date.toISOString().slice(0, 10);
@@ -677,7 +702,7 @@ class AnalyticsService {
         default:
           cohortKey = date.toISOString().slice(0, 10);
       }
-      
+
       if (!cohorts[cohortKey]) {
         cohorts[cohortKey] = new Set();
       }
@@ -687,12 +712,12 @@ class AnalyticsService {
     return Object.entries(cohorts).map(([cohort, users]) => ({
       cohort,
       users: users.size,
-      retention: users.size // 簡化計算
+      retention: users.size, // 簡化計算
     }));
   }
 
   getTopFeatures(events, limit, category) {
-    const featureCounts = {};
+    const featureCounts = { };
     events.forEach(e => {
       if (!category || e.category === category) {
         featureCounts[e.category] = (featureCounts[e.category] || 0) + 1;
@@ -707,8 +732,8 @@ class AnalyticsService {
 
   parseDuration(duration) {
     const unit = duration.slice(-1);
-    const value = parseInt(duration.slice(0, -1));
-    
+    const value = parseInt(duration.slice(0, -1), 10);
+
     switch (unit) {
       case 'h': return value * 60 * 60 * 1000;
       case 'd': return value * 24 * 60 * 60 * 1000;
@@ -717,13 +742,15 @@ class AnalyticsService {
   }
 
   calculateEventsPerMinute(events) {
-    if (events.length === 0) return 0;
+    if (events.length === 0) {
+      return 0;
+    }
     const timeSpan = Math.max(1, (Date.now() - Math.min(...events.map(e => new Date(e.timestamp)))) / (1000 * 60));
     return events.length / timeSpan;
   }
 
   getTopEvents(events, limit) {
-    const eventCounts = {};
+    const eventCounts = { };
     events.forEach(e => {
       eventCounts[e.event] = (eventCounts[e.event] || 0) + 1;
     });
@@ -735,10 +762,10 @@ class AnalyticsService {
   }
 
   convertToCSV(data, type) {
-    // 簡化的CSV轉換
+  // 簡化的CSV轉換
     const headers = Object.keys(data);
     const rows = [headers.join(',')];
-    
+
     if (Array.isArray(data)) {
       data.forEach(row => {
         rows.push(Object.values(row).join(','));
@@ -750,7 +777,8 @@ class AnalyticsService {
     return {
       format: 'csv',
       content: rows.join('\n'),
-      filename: `analytics_${type}_${new Date().toISOString().split('T')[0]}.csv`
+      filename: `analytics_${type
+      }_${ new Date().toISOString().split('T')[0] }.csv`,
     };
   }
 }

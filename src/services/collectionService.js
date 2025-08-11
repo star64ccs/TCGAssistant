@@ -1,5 +1,7 @@
-import { apiService, API_ENDPOINTS, retryRequest, cachedRequest } from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_ENDPOINTS } from '../config/apiConfig';
+import apiService from './api';
+import cachedRequest from '../utils/cachedRequest';
 
 // 緩存配置
 const COLLECTION_CACHE_KEY = 'collection_data';
@@ -13,24 +15,21 @@ export const collectionService = {
       const response = await cachedRequest(
         COLLECTION_CACHE_KEY,
         () => apiService.get(API_ENDPOINTS.COLLECTION.LIST, params),
-        COLLECTION_CACHE_DURATION
+        COLLECTION_CACHE_DURATION,
       );
-      
-      // 處理收藏數據，計算盈虧
+        // 處理收藏數據，計算盈虧
       const processedCards = response.cards.map(card => ({
         ...card,
         profitLoss: (card.currentPrice || 0) - (card.purchasePrice || 0),
-        profitLossPercentage: card.purchasePrice > 0 
-          ? ((card.currentPrice - card.purchasePrice) / card.purchasePrice) * 100 
-          : 0
+        profitLossPercentage: card.purchasePrice > 0
+          ? ((card.currentPrice - card.purchasePrice) / card.purchasePrice) * 100
+          : 0,
       }));
-      
       return {
         ...response,
-        cards: processedCards
+        cards: processedCards,
       };
     } catch (error) {
-      console.error('Get collection error:', error);
       throw error;
     }
   },
@@ -39,13 +38,10 @@ export const collectionService = {
   addToCollection: async (cardData) => {
     try {
       const response = await apiService.post(API_ENDPOINTS.COLLECTION.ADD, cardData);
-      
       // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Add to collection error:', error);
       throw error;
     }
   },
@@ -53,14 +49,12 @@ export const collectionService = {
   // 從收藏移除卡牌
   removeFromCollection: async (cardId) => {
     try {
-      const response = await apiService.delete(`${API_ENDPOINTS.COLLECTION.REMOVE}/${cardId}`);
-      
-      // 清除緩存以確保數據同步
+      const response = await apiService.delete(`${API_ENDPOINTS.COLLECTION.REMOVE
+      }/${ cardId }`);
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Remove from collection error:', error);
       throw error;
     }
   },
@@ -68,14 +62,12 @@ export const collectionService = {
   // 更新卡牌資訊
   updateCardInfo: async (cardId, updates) => {
     try {
-      const response = await apiService.put(`${API_ENDPOINTS.COLLECTION.UPDATE}/${cardId}`, updates);
-      
-      // 清除緩存以確保數據同步
+      const response = await apiService.put(`${API_ENDPOINTS.COLLECTION.UPDATE
+      }/${ cardId }`, updates);
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Update card info error:', error);
       throw error;
     }
   },
@@ -84,14 +76,13 @@ export const collectionService = {
   getCollectionStats: async () => {
     try {
       const response = await cachedRequest(
-        `${COLLECTION_CACHE_KEY}_stats`,
+        `${COLLECTION_CACHE_KEY
+        }_stats`,
         () => apiService.get(API_ENDPOINTS.COLLECTION.STATS),
-        COLLECTION_CACHE_DURATION
+        COLLECTION_CACHE_DURATION,
       );
-      
       return response;
     } catch (error) {
-      console.error('Get collection stats error:', error);
       throw error;
     }
   },
@@ -100,15 +91,12 @@ export const collectionService = {
   toggleFavorite: async (cardId) => {
     try {
       const response = await apiService.put(`${API_ENDPOINTS.COLLECTION.UPDATE}/${cardId}`, {
-        isFavorite: true // 這裡需要先獲取當前狀態，然後切換
+        isFavorite: true, // 這裡需要先獲取當前狀態，然後切換
       });
-      
-      // 清除緩存以確保數據同步
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Toggle favorite error:', error);
       throw error;
     }
   },
@@ -116,18 +104,16 @@ export const collectionService = {
   // 批量操作
   batchOperation: async (operation, cardIds, data = {}) => {
     try {
-      const response = await apiService.post(`${API_ENDPOINTS.COLLECTION.LIST}/batch`, {
+      const response = await apiService.post(`${API_ENDPOINTS.COLLECTION.LIST
+      }/batch`, {
         operation,
         cardIds,
-        data
+        data,
       });
-      
-      // 清除緩存以確保數據同步
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Batch operation error:', error);
       throw error;
     }
   },
@@ -137,24 +123,21 @@ export const collectionService = {
     try {
       const response = await apiService.get(API_ENDPOINTS.COLLECTION.LIST, {
         search: query,
-        ...filters
+        ...filters,
       });
-      
-      // 處理搜索結果
+        // 處理搜索結果
       const processedCards = response.cards.map(card => ({
         ...card,
         profitLoss: (card.currentPrice || 0) - (card.purchasePrice || 0),
-        profitLossPercentage: card.purchasePrice > 0 
-          ? ((card.currentPrice - card.purchasePrice) / card.purchasePrice) * 100 
-          : 0
+        profitLossPercentage: card.purchasePrice > 0
+          ? ((card.currentPrice - card.purchasePrice) / card.purchasePrice) * 100
+          : 0,
       }));
-      
       return {
         ...response,
-        cards: processedCards
+        cards: processedCards,
       };
     } catch (error) {
-      console.error('Search collection error:', error);
       throw error;
     }
   },
@@ -162,13 +145,10 @@ export const collectionService = {
   // 導出收藏數據
   exportCollection: async (format = 'json') => {
     try {
-      const response = await apiService.get(`${API_ENDPOINTS.COLLECTION.LIST}/export`, {
-        format
-      });
-      
+      const response = await apiService.get(`${API_ENDPOINTS.COLLECTION.LIST
+      }/export`, { format });
       return response;
     } catch (error) {
-      console.error('Export collection error:', error);
       throw error;
     }
   },
@@ -176,14 +156,12 @@ export const collectionService = {
   // 導入收藏數據
   importCollection: async (file) => {
     try {
-      const response = await apiService.upload(`${API_ENDPOINTS.COLLECTION.LIST}/import`, file);
-      
-      // 清除緩存以確保數據同步
+      const response = await apiService.upload(`${API_ENDPOINTS.COLLECTION.LIST
+      }/import`, file);
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Import collection error:', error);
       throw error;
     }
   },
@@ -192,19 +170,18 @@ export const collectionService = {
   clearCache: async () => {
     try {
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      await AsyncStorage.removeItem(`${COLLECTION_CACHE_KEY}_stats`);
-    } catch (error) {
-      console.error('Clear collection cache error:', error);
-    }
+      await AsyncStorage.removeItem(`${COLLECTION_CACHE_KEY
+      }_stats`);
+    } catch (error) {}
   },
 
   // 同步本地數據到服務器
   syncToServer: async (localData) => {
     try {
-      const response = await apiService.post(`${API_ENDPOINTS.COLLECTION.LIST}/sync`, localData);
+      const response = await apiService.post(`${API_ENDPOINTS.COLLECTION.LIST
+      }/sync`, localData);
       return response;
     } catch (error) {
-      console.error('Sync to server error:', error);
       throw error;
     }
   },
@@ -212,17 +189,15 @@ export const collectionService = {
   // 從服務器同步數據
   syncFromServer: async () => {
     try {
-      const response = await apiService.get(`${API_ENDPOINTS.COLLECTION.LIST}/sync`);
-      
-      // 清除緩存以確保數據同步
+      const response = await apiService.get(`${API_ENDPOINTS.COLLECTION.LIST
+      }/sync`);
+        // 清除緩存以確保數據同步
       await AsyncStorage.removeItem(COLLECTION_CACHE_KEY);
-      
       return response;
     } catch (error) {
-      console.error('Sync from server error:', error);
       throw error;
     }
-  }
+  },
 };
 
 // 離線支持
@@ -236,7 +211,6 @@ export const offlineCollectionService = {
       }
       return null;
     } catch (error) {
-      console.error('Get local collection error:', error);
       return null;
     }
   },
@@ -245,9 +219,7 @@ export const offlineCollectionService = {
   saveLocalCollection: async (collectionData) => {
     try {
       await AsyncStorage.setItem(COLLECTION_CACHE_KEY, JSON.stringify(collectionData));
-    } catch (error) {
-      console.error('Save local collection error:', error);
-    }
+    } catch (error) {}
   },
 
   // 獲取待同步的操作
@@ -256,7 +228,6 @@ export const offlineCollectionService = {
       const pendingOps = await AsyncStorage.getItem('collection_pending_ops');
       return pendingOps ? JSON.parse(pendingOps) : [];
     } catch (error) {
-      console.error('Get pending operations error:', error);
       return [];
     }
   },
@@ -268,22 +239,18 @@ export const offlineCollectionService = {
       pendingOps.push({
         ...operation,
         timestamp: Date.now(),
-        id: Date.now().toString()
+        id: Date.now().toString(),
       });
       await AsyncStorage.setItem('collection_pending_ops', JSON.stringify(pendingOps));
-    } catch (error) {
-      console.error('Add pending operation error:', error);
-    }
+    } catch (error) {}
   },
 
   // 清除已同步的操作
   clearPendingOperations: async () => {
     try {
       await AsyncStorage.removeItem('collection_pending_ops');
-    } catch (error) {
-      console.error('Clear pending operations error:', error);
-    }
-  }
+    } catch (error) {}
+  },
 };
 
 export default collectionService;

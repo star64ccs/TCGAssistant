@@ -20,7 +20,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_002',
@@ -39,7 +39,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_003',
@@ -58,7 +58,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_004',
@@ -77,7 +77,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_005',
@@ -96,7 +96,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_006',
@@ -115,7 +115,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_007',
@@ -134,7 +134,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_008',
@@ -153,7 +153,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_009',
@@ -172,7 +172,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'yugioh_lob_010',
@@ -191,7 +191,7 @@ export const yuGiOhCards = [
     game_type: 'yugioh',
     release_date: '2002-03-08',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   // 繼續添加更多卡牌...
   // 這裡只展示前10張卡牌，實際檔案會包含完整的LOB系列
@@ -206,7 +206,7 @@ export const yuGiOhSeries = [
     code: 'LOB',
     release_date: '2002-03-08',
     total_cards: 126,
-    description: 'The first Yu-Gi-Oh! Trading Card Game set featuring the iconic Blue-Eyes White Dragon'
+    description: 'The first Yu-Gi-Oh! Trading Card Game set featuring the iconic Blue-Eyes White Dragon',
   },
   {
     id: 'mrd',
@@ -214,7 +214,7 @@ export const yuGiOhSeries = [
     code: 'MRD',
     release_date: '2002-06-26',
     total_cards: 126,
-    description: 'Features powerful monsters and the introduction of Ritual Summoning'
+    description: 'Features powerful monsters and the introduction of Ritual Summoning',
   },
   {
     id: 'mag',
@@ -222,7 +222,7 @@ export const yuGiOhSeries = [
     code: 'MAG',
     release_date: '2002-10-16',
     total_cards: 126,
-    description: 'Introduces Fusion Monsters and powerful Spell Cards'
+    description: 'Introduces Fusion Monsters and powerful Spell Cards',
   },
   {
     id: 'psv',
@@ -230,7 +230,7 @@ export const yuGiOhSeries = [
     code: 'PSV',
     release_date: '2003-03-19',
     total_cards: 126,
-    description: 'Features Egyptian-themed cards and the Millennium Items'
+    description: 'Features Egyptian-themed cards and the Millennium Items',
   },
   {
     id: 'lon',
@@ -238,8 +238,8 @@ export const yuGiOhSeries = [
     code: 'LON',
     release_date: '2003-06-18',
     total_cards: 126,
-    description: 'Introduces Flip Effect monsters and powerful Trap Cards'
-  }
+    description: 'Introduces Flip Effect monsters and powerful Trap Cards',
+  },
 ];
 
 // 卡牌稀有度資訊
@@ -251,7 +251,7 @@ export const yuGiOhRarities = [
   'Secret Rare',
   'Ultimate Rare',
   'Ghost Rare',
-  'Promo'
+  'Promo',
 ];
 
 // 卡牌類型資訊
@@ -264,7 +264,7 @@ export const yuGiOhTypes = [
   'XYZ Monster',
   'Link Monster',
   'Spell',
-  'Trap'
+  'Trap',
 ];
 
 // 卡牌屬性資訊
@@ -275,7 +275,7 @@ export const yuGiOhAttributes = [
   'FIRE',
   'LIGHT',
   'WATER',
-  'WIND'
+  'WIND',
 ];
 
 // 卡牌種族資訊
@@ -304,5 +304,5 @@ export const yuGiOhRaces = [
   'Warrior',
   'Winged Beast',
   'Wyrm',
-  'Zombie'
+  'Zombie',
 ];

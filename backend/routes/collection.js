@@ -18,8 +18,8 @@ const addToCollectionSchema = Joi.object({
     rarity: Joi.string().required(),
     purchaseDate: Joi.date().optional(),
     purchasePrice: Joi.number().positive().optional(),
-    isFavorite: Joi.boolean().default(false)
-  }).required()
+    isFavorite: Joi.boolean().default(false),
+  }).required(),
 });
 
 const updateCollectionSchema = Joi.object({
@@ -28,8 +28,8 @@ const updateCollectionSchema = Joi.object({
     isFavorite: Joi.boolean().optional(),
     condition: Joi.string().valid('mint', 'near_mint', 'excellent', 'good', 'light_played', 'played', 'poor').optional(),
     quantity: Joi.number().integer().positive().optional(),
-    notes: Joi.string().optional()
-  }).required()
+    notes: Joi.string().optional(),
+  }).required(),
 });
 
 // 獲取用戶收藏
@@ -43,7 +43,7 @@ router.get('/', async (req, res, next) => {
 
     if (search) {
       where['$Card.name$'] = {
-        [Op.iLike]: `%${search}%`
+        [Op.iLike]: `%${search}%`,
       };
     }
 
@@ -55,11 +55,11 @@ router.get('/', async (req, res, next) => {
       where,
       include: [{
         model: Card,
-        attributes: ['cardId', 'name', 'series', 'cardNumber', 'rarity', 'imageUrl', 'currentPrice']
+        attributes: ['cardId', 'name', 'series', 'cardNumber', 'rarity', 'imageUrl', 'currentPrice'],
       }],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [['createdAt', 'DESC']]
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+      order: [['createdAt', 'DESC']],
     });
 
     // 轉換數據格式以匹配前端期望
@@ -83,7 +83,7 @@ router.get('/', async (req, res, next) => {
         profitLoss: profitLoss,
         profitLossPercentage: profitLossPercentage,
         isFavorite: collection.isFavorite,
-        imageUrl: card.imageUrl
+        imageUrl: card.imageUrl,
       };
     });
 
@@ -98,9 +98,8 @@ router.get('/', async (req, res, next) => {
       totalValue: totalValue,
       totalCards: collections.count,
       totalPurchaseValue: totalPurchaseValue,
-      totalProfitLoss: totalProfitLoss
+      totalProfitLoss: totalProfitLoss,
     });
-
   } catch (error) {
     next(error);
   }
@@ -119,8 +118,8 @@ router.post('/add', async (req, res, next) => {
         error: {
           code: 'VALIDATION_ERROR',
           message: '請求數據驗證失敗',
-          details: error.details
-        }
+          details: error.details,
+        },
       });
     }
 
@@ -128,7 +127,7 @@ router.post('/add', async (req, res, next) => {
 
     // 查找卡牌
     const card = await Card.findOne({
-      where: { cardId: cardData.cardId }
+      where: { cardId: cardData.cardId },
     });
 
     if (!card) {
@@ -136,14 +135,14 @@ router.post('/add', async (req, res, next) => {
         success: false,
         error: {
           code: 'CARD_NOT_FOUND',
-          message: '卡牌不存在'
-        }
+          message: '卡牌不存在',
+        },
       });
     }
 
     // 檢查是否已存在於收藏中
     const existingCollection = await Collection.findOne({
-      where: { userId, cardId: card.id }
+      where: { userId, cardId: card.id },
     });
 
     if (existingCollection) {
@@ -151,8 +150,8 @@ router.post('/add', async (req, res, next) => {
         success: false,
         error: {
           code: 'CARD_ALREADY_IN_COLLECTION',
-          message: '卡牌已在收藏中'
-        }
+          message: '卡牌已在收藏中',
+        },
       });
     }
 
@@ -162,7 +161,7 @@ router.post('/add', async (req, res, next) => {
       cardId: card.id,
       purchaseDate: cardData.purchaseDate || new Date(),
       purchasePrice: cardData.purchasePrice,
-      isFavorite: cardData.isFavorite || false
+      isFavorite: cardData.isFavorite || false,
     });
 
     // 記錄歷史
@@ -172,7 +171,7 @@ router.post('/add', async (req, res, next) => {
       actionType: 'collection_add',
       actionData: { cardName: cardData.cardName },
       ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
 
     logger.info(`用戶 ${userId} 添加卡牌到收藏: ${cardData.cardName}`);
@@ -180,9 +179,8 @@ router.post('/add', async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: '卡牌已成功添加到收藏',
-      cardId: collection.id
+      cardId: collection.id,
     });
-
   } catch (error) {
     next(error);
   }
@@ -199,8 +197,8 @@ router.delete('/remove', async (req, res, next) => {
         success: false,
         error: {
           code: 'MISSING_CARD_ID',
-          message: '缺少卡牌ID'
-        }
+          message: '缺少卡牌ID',
+        },
       });
     }
 
@@ -209,8 +207,8 @@ router.delete('/remove', async (req, res, next) => {
       where: { userId, id: cardId },
       include: [{
         model: Card,
-        attributes: ['name']
-      }]
+        attributes: ['name'],
+      }],
     });
 
     if (!collection) {
@@ -218,8 +216,8 @@ router.delete('/remove', async (req, res, next) => {
         success: false,
         error: {
           code: 'COLLECTION_NOT_FOUND',
-          message: '收藏記錄不存在'
-        }
+          message: '收藏記錄不存在',
+        },
       });
     }
 
@@ -230,7 +228,7 @@ router.delete('/remove', async (req, res, next) => {
       actionType: 'collection_remove',
       actionData: { cardName: collection.Card.name },
       ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
 
     // 刪除收藏記錄
@@ -240,9 +238,8 @@ router.delete('/remove', async (req, res, next) => {
 
     res.json({
       success: true,
-      message: '卡牌已從收藏中移除'
+      message: '卡牌已從收藏中移除',
     });
-
   } catch (error) {
     next(error);
   }
@@ -261,8 +258,8 @@ router.put('/update', async (req, res, next) => {
         error: {
           code: 'VALIDATION_ERROR',
           message: '請求數據驗證失敗',
-          details: error.details
-        }
+          details: error.details,
+        },
       });
     }
 
@@ -273,14 +270,14 @@ router.put('/update', async (req, res, next) => {
         success: false,
         error: {
           code: 'MISSING_CARD_ID',
-          message: '缺少卡牌ID'
-        }
+          message: '缺少卡牌ID',
+        },
       });
     }
 
     // 查找收藏記錄
     const collection = await Collection.findOne({
-      where: { userId, id: cardId }
+      where: { userId, id: cardId },
     });
 
     if (!collection) {
@@ -288,8 +285,8 @@ router.put('/update', async (req, res, next) => {
         success: false,
         error: {
           code: 'COLLECTION_NOT_FOUND',
-          message: '收藏記錄不存在'
-        }
+          message: '收藏記錄不存在',
+        },
       });
     }
 
@@ -300,9 +297,8 @@ router.put('/update', async (req, res, next) => {
 
     res.json({
       success: true,
-      message: '收藏已更新'
+      message: '收藏已更新',
     });
-
   } catch (error) {
     next(error);
   }
@@ -317,8 +313,8 @@ router.get('/stats', async (req, res, next) => {
       where: { userId },
       include: [{
         model: Card,
-        attributes: ['name', 'currentPrice']
-      }]
+        attributes: ['name', 'currentPrice'],
+      }],
     });
 
     const totalCards = collections.length;
@@ -341,8 +337,8 @@ router.get('/stats', async (req, res, next) => {
     // 計算最近添加的數量（30天內）
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const recentAdditions = collections.filter(collection => 
-      collection.createdAt > thirtyDaysAgo
+    const recentAdditions = collections.filter(collection =>
+      collection.createdAt > thirtyDaysAgo,
     ).length;
 
     res.json({
@@ -352,10 +348,9 @@ router.get('/stats', async (req, res, next) => {
         totalValue,
         averageValue,
         mostValuable,
-        recentAdditions
-      }
+        recentAdditions,
+      },
     });
-
   } catch (error) {
     next(error);
   }

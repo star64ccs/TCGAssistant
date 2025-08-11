@@ -1,8 +1,8 @@
 import { Platform, Dimensions } from 'react-native';
 
 /**
- * 平台特定常數配置
- */
+* 平台特定常數配置
+*/
 export const PLATFORM_CONSTANTS = {
   // 平台識別
   PLATFORM: {
@@ -21,8 +21,7 @@ export const PLATFORM_CONSTANTS = {
 
   // 安全區域配置
   SAFE_AREA: {
-    IOS: {
-      TOP: 44,
+    IOS: {      TOP: 44,
       BOTTOM: 34,
       LEFT: 0,
       RIGHT: 0,
@@ -43,8 +42,7 @@ export const PLATFORM_CONSTANTS = {
 
   // 字體配置
   FONTS: {
-    IOS: {
-      REGULAR: 'System',
+    IOS: {      REGULAR: 'System',
       MEDIUM: 'System',
       BOLD: 'System',
       LIGHT: 'System',
@@ -68,30 +66,22 @@ export const PLATFORM_CONSTANTS = {
 
   // 性能配置
   PERFORMANCE: {
-    IOS: {
-      IMAGE_QUALITY: 0.9,
-      MAX_IMAGE_SIZE: 15 * 1024 * 1024, // 15MB
-      CACHE_DURATION: 24 * 60 * 60 * 1000, // 24小時
-      ANIMATION_DURATION: 300,
+    IOS: {      IMAGE_QUALITY: 0.9,
+      MAX_IMAGE_SIZE: 15 * 1024 * 1024, // 15MB      CACHE_DURATION: 24 * 60 * 60 * 1000, // 24小時      ANIMATION_DURATION: 300,
     },
     ANDROID: {
       IMAGE_QUALITY: 0.85,
-      MAX_IMAGE_SIZE: 12 * 1024 * 1024, // 12MB
-      CACHE_DURATION: 24 * 60 * 60 * 1000, // 24小時
-      ANIMATION_DURATION: 300,
+      MAX_IMAGE_SIZE: 12 * 1024 * 1024, // 12MB      CACHE_DURATION: 24 * 60 * 60 * 1000, // 24小時      ANIMATION_DURATION: 300,
     },
     WEB: {
       IMAGE_QUALITY: 0.7,
-      MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB
-      CACHE_DURATION: 12 * 60 * 60 * 1000, // 12小時
-      ANIMATION_DURATION: 250,
+      MAX_IMAGE_SIZE: 5 * 1024 * 1024, // 5MB      CACHE_DURATION: 12 * 60 * 60 * 1000, // 12小時      ANIMATION_DURATION: 250,
     },
   },
 
   // API 配置
   API: {
-    TIMEOUT: {
-      IOS: 30000,
+    TIMEOUT: {      IOS: 30000,
       ANDROID: 30000,
       WEB: 20000,
     },
@@ -101,36 +91,27 @@ export const PLATFORM_CONSTANTS = {
       WEB: 2,
     },
     CACHE_DURATION: {
-      IOS: 5 * 60 * 1000, // 5分鐘
-      ANDROID: 5 * 60 * 1000, // 5分鐘
-      WEB: 3 * 60 * 1000, // 3分鐘
+      IOS: 5 * 60 * 1000, // 5分鐘      ANDROID: 5 * 60 * 1000, // 5分鐘      WEB: 3 * 60 * 1000, // 3分鐘
     },
   },
 
   // UI 配置
   UI: {
-    BORDER_RADIUS: {
-      IOS: 8,
+    BORDER_RADIUS: {      IOS: 8,
       ANDROID: 4,
       WEB: 6,
     },
     SHADOW: {
-      IOS: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+      IOS: {        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2,
+        },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      ANDROID: {
-        elevation: 4,
-      },
-      WEB: {
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-      },
+        shadowRadius: 4,      },
+      ANDROID: { elevation: 4 },
+      WEB: { boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' },
     },
     SPACING: {
-      IOS: {
-        XS: 4,
+      IOS: {        XS: 4,
         SM: 8,
         MD: 16,
         LG: 24,
@@ -186,14 +167,15 @@ export const PLATFORM_CONSTANTS = {
 };
 
 /**
- * 獲取當前平台的配置
- * @param {string} configKey - 配置鍵
- * @returns {any} 平台特定配置
- */
+* 獲取當前平台的配置
+* @param { string } configKey - 配置鍵
+* @returns { any } 平台特定配置
+*/
 export const getPlatformConfig = (configKey) => {
   const config = PLATFORM_CONSTANTS[configKey];
   if (!config) {
-    console.warn(`配置鍵 "${configKey}" 不存在`);
+    console.warn(`配置鍵 "${configKey
+    }" 不存在`);
     return null;
   }
 
@@ -208,42 +190,47 @@ export const getPlatformConfig = (configKey) => {
 };
 
 /**
- * 檢查功能是否支援
- * @param {string} feature - 功能名稱
- * @returns {boolean} 是否支援
- */
+* 檢查功能是否支援
+* @param { string } feature - 功能名稱
+* @returns { boolean } 是否支援
+*/
 export const isFeatureSupported = (feature) => {
   return PLATFORM_CONSTANTS.FEATURES[feature] || false;
 };
 
 /**
- * 獲取設備類型
- * @returns {string} 設備類型
- */
+* 獲取設備類型
+* @returns { string } 設備類型
+*/
 export const getDeviceType = () => {
   const { width, height } = Dimensions.get('window');
   const aspectRatio = height / width;
 
   if (Platform.OS === 'web') {
-    if (width >= 1200) return PLATFORM_CONSTANTS.DEVICE_TYPE.DESKTOP;
-    if (width >= 768) return PLATFORM_CONSTANTS.DEVICE_TYPE.TABLET;
-    return PLATFORM_CONSTANTS.DEVICE_TYPE.PHONE;
-  } else {
-    if (aspectRatio <= 1.6) return PLATFORM_CONSTANTS.DEVICE_TYPE.TABLET;
+    if (width >= 1200) {
+      return PLATFORM_CONSTANTS.DEVICE_TYPE.DESKTOP;
+    }
+    if (width >= 768) {
+      return PLATFORM_CONSTANTS.DEVICE_TYPE.TABLET;
+    }
     return PLATFORM_CONSTANTS.DEVICE_TYPE.PHONE;
   }
+  if (aspectRatio <= 1.6) {
+    return PLATFORM_CONSTANTS.DEVICE_TYPE.TABLET;
+  }
+  return PLATFORM_CONSTANTS.DEVICE_TYPE.PHONE;
 };
 
 /**
- * 獲取平台特定樣式
- * @param {Object} styles - 樣式對象
- * @returns {Object} 平台特定樣式
- */
+* 獲取平台特定樣式
+* @param { Object } styles - 樣式對象
+* @returns { Object } 平台特定樣式
+*/
 export const getPlatformStyles = (styles) => {
   const { ios, android, web, ...commonStyles } = styles;
-  
+
   let platformStyles = {};
-  
+
   if (Platform.OS === 'ios' && ios) {
     platformStyles = { ...platformStyles, ...ios };
   } else if (Platform.OS === 'android' && android) {
@@ -251,7 +238,7 @@ export const getPlatformStyles = (styles) => {
   } else if (Platform.OS === 'web' && web) {
     platformStyles = { ...platformStyles, ...web };
   }
-  
+
   return { ...commonStyles, ...platformStyles };
 };
 

@@ -23,10 +23,10 @@ router.get('/recent', async (req, res, next) => {
       where,
       include: [{
         model: Card,
-        attributes: ['cardId', 'name', 'imageUrl', 'currentPrice']
+        attributes: ['cardId', 'name', 'imageUrl', 'currentPrice'],
       }],
-      limit: parseInt(limit),
-      order: [['createdAt', 'DESC']]
+      limit: parseInt(limit, 10),
+      order: [['createdAt', 'DESC']],
     });
 
     // 轉換數據格式以匹配前端期望
@@ -41,15 +41,14 @@ router.get('/recent', async (req, res, next) => {
         rarity: card ? card.rarity : null,
         number: card ? card.cardNumber : null,
         timestamp: history.createdAt,
-        confidence: history.confidence
+        confidence: history.confidence,
       };
     });
 
     res.json({
       success: true,
-      records: formattedRecords
+      records: formattedRecords,
     });
-
   } catch (error) {
     next(error);
   }
@@ -69,7 +68,7 @@ router.get('/', async (req, res, next) => {
     }
 
     if (startDate || endDate) {
-      where.createdAt = {};
+      where.createdAt = { };
       if (startDate) {
         where.createdAt[Op.gte] = new Date(startDate);
       }
@@ -82,11 +81,11 @@ router.get('/', async (req, res, next) => {
       where,
       include: [{
         model: Card,
-        attributes: ['cardId', 'name', 'imageUrl', 'currentPrice', 'rarity', 'cardNumber']
+        attributes: ['cardId', 'name', 'imageUrl', 'currentPrice', 'rarity', 'cardNumber'],
       }],
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [['createdAt', 'DESC']]
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+      order: [['createdAt', 'DESC']],
     });
 
     // 轉換數據格式
@@ -103,7 +102,7 @@ router.get('/', async (req, res, next) => {
         timestamp: history.createdAt,
         confidence: history.confidence,
         actionData: history.actionData,
-        result: history.result
+        result: history.result,
       };
     });
 
@@ -111,9 +110,8 @@ router.get('/', async (req, res, next) => {
       success: true,
       histories: formattedHistories,
       total: histories.count,
-      hasMore: histories.count > parseInt(offset) + parseInt(limit)
+      hasMore: histories.count > parseInt(offset, 10) + parseInt(limit, 10),
     });
-
   } catch (error) {
     next(error);
   }
@@ -123,13 +121,14 @@ router.get('/', async (req, res, next) => {
 router.get('/stats', async (req, res, next) => {
   try {
     const userId = req.userId;
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate,
+    } = req.query;
 
     // 構建查詢條件
     const where = { userId };
 
     if (startDate || endDate) {
-      where.createdAt = {};
+      where.createdAt = { };
       if (startDate) {
         where.createdAt[Op.gte] = new Date(startDate);
       }
@@ -146,15 +145,15 @@ router.get('/stats', async (req, res, next) => {
       where,
       attributes: [
         'actionType',
-        [UserHistory.sequelize.fn('COUNT', UserHistory.sequelize.col('id')), 'count']
+        [UserHistory.sequelize.fn('COUNT', UserHistory.sequelize.col('id')), 'count'],
       ],
-      group: ['actionType']
+      group: ['actionType'],
     });
 
     // 轉換統計數據
     const actionTypeStats = {};
     typeStats.forEach(stat => {
-      actionTypeStats[stat.actionType] = parseInt(stat.dataValues.count);
+      actionTypeStats[stat.actionType] = parseInt(stat.dataValues.count, 10);
     });
 
     // 獲取最近7天的記錄數
@@ -164,9 +163,9 @@ router.get('/stats', async (req, res, next) => {
       where: {
         ...where,
         createdAt: {
-          [Op.gte]: sevenDaysAgo
-        }
-      }
+          [Op.gte]: sevenDaysAgo,
+        },
+      },
     });
 
     // 獲取平均置信度
@@ -174,12 +173,12 @@ router.get('/stats', async (req, res, next) => {
       where: {
         ...where,
         confidence: {
-          [Op.not]: null
-        }
+          [Op.not]: null,
+        },
       },
       attributes: [
-        [UserHistory.sequelize.fn('AVG', UserHistory.sequelize.col('confidence')), 'avgConfidence']
-      ]
+        [UserHistory.sequelize.fn('AVG', UserHistory.sequelize.col('confidence')), 'avgConfidence'],
+      ],
     });
 
     res.json({
@@ -188,10 +187,9 @@ router.get('/stats', async (req, res, next) => {
         totalRecords,
         actionTypeStats,
         recentRecords,
-        averageConfidence: avgConfidence ? parseFloat(avgConfidence.dataValues.avgConfidence) : 0
-      }
+        averageConfidence: avgConfidence ? parseFloat(avgConfidence.dataValues.avgConfidence) : 0,
+      },
     });
-
   } catch (error) {
     next(error);
   }
@@ -201,30 +199,31 @@ router.get('/stats', async (req, res, next) => {
 router.delete('/clear', async (req, res, next) => {
   try {
     const userId = req.userId;
-    const { days = 30 } = req.query;
+    const { days = 30,
+    } = req.query;
 
     // 計算截止日期
     const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days));
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(days, 10));
 
     // 刪除指定日期之前的記錄
     const deletedCount = await UserHistory.destroy({
       where: {
         userId,
         createdAt: {
-          [Op.lt]: cutoffDate
-        }
-      }
+          [Op.lt]: cutoffDate,
+        },
+      },
     });
 
-    logger.info(`用戶 ${userId} 清除了 ${deletedCount} 條歷史記錄`);
+    logger.info(`用戶 ${ userId } 清除了 ${ deletedCount } 條歷史記錄`);
 
     res.json({
       success: true,
-      message: `已清除 ${deletedCount} 條歷史記錄`,
-      deletedCount
+      message: `已清除 ${deletedCount
+      } 條歷史記錄`,
+      deletedCount,
     });
-
   } catch (error) {
     next(error);
   }

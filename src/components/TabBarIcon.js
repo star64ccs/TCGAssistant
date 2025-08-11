@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { COLORS } from '../constants';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { COLORS } from '../constants/colors';
 
 const TabBarIcon = ({ route, focused, color, size }) => {
   let iconName;
@@ -24,14 +24,14 @@ const TabBarIcon = ({ route, focused, color, size }) => {
   }
 
   return (
-    <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-      <Icon 
-        name={iconName} 
-        size={size} 
-        color={focused ? COLORS.PRIMARY : color} 
+    <View style={ { alignItems: 'center', justifyContent: 'center' }}>
+      <Icon
+        name={ iconName }
+        size={ size }
+        color={ focused ? COLORS.PRIMARY : color }
       />
     </View>
   );
 };
 
-export default TabBarIcon;
+export default React.memo(TabBarIcon);

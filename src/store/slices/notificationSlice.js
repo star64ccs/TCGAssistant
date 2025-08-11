@@ -1,49 +1,38 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
-// Mock notifications for testing
+// 簡化的通知處理器
 const Notifications = {
-  setNotificationHandler: jest.fn(),
-  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
-  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
-  scheduleNotificationAsync: jest.fn(() => Promise.resolve('mock-notification-id')),
-  cancelScheduledNotificationAsync: jest.fn(() => Promise.resolve()),
-  cancelAllScheduledNotificationsAsync: jest.fn(() => Promise.resolve()),
-  getBadgeCountAsync: jest.fn(() => Promise.resolve(0)),
-  setBadgeCountAsync: jest.fn(() => Promise.resolve()),
+  setNotificationHandler: () => {},
+  getPermissionsAsync: () => Promise.resolve({ status: 'granted' }),
+  requestPermissionsAsync: () => Promise.resolve({ status: 'granted' }),
+  scheduleNotificationAsync: () => Promise.resolve('mock-notification-id'),
+  cancelScheduledNotificationAsync: () => Promise.resolve(),
+  cancelAllScheduledNotificationsAsync: () => Promise.resolve(),
+  getBadgeCountAsync: () => Promise.resolve(0),
+  setBadgeCountAsync: () => Promise.resolve(),
 };
-
-// 配置通知
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
 
 // Async thunks
 export const requestNotificationPermissions = createAsyncThunk(
   'notification/requestPermissions',
   async (_, { rejectWithValue }) => {
     try {
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      const { status: existingStatus,
+      } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      
       if (finalStatus !== 'granted') {
         throw new Error('Permission not granted');
       }
-      
       return finalStatus;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const scheduleLocalNotification = createAsyncThunk(
@@ -58,12 +47,11 @@ export const scheduleLocalNotification = createAsyncThunk(
         },
         trigger: notificationData.trigger || null,
       });
-      
       return { id: notificationId, ...notificationData };
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const cancelNotification = createAsyncThunk(
@@ -75,7 +63,7 @@ export const cancelNotification = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const cancelAllNotifications = createAsyncThunk(
@@ -87,7 +75,7 @@ export const cancelAllNotifications = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const addNotification = createAsyncThunk(
@@ -100,18 +88,16 @@ export const addNotification = createAsyncThunk(
         createdAt: new Date().toISOString(),
         isRead: false,
       };
-      
-      // 保存到本地存儲
+        // 保存到本地存儲
       const existingNotifications = await AsyncStorage.getItem('notifications');
       const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
       notifications.unshift(newNotification);
       await AsyncStorage.setItem('notifications', JSON.stringify(notifications));
-      
       return newNotification;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const markNotificationAsRead = createAsyncThunk(
@@ -120,16 +106,16 @@ export const markNotificationAsRead = createAsyncThunk(
     try {
       const existingNotifications = await AsyncStorage.getItem('notifications');
       const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
-      const updatedNotifications = notifications.map(notification => 
-        notification.id === notificationId ? { ...notification, isRead: true } : notification
+      const updatedNotifications = notifications.map(notification =>
+        notification.id === notificationId ? { ...notification, isRead: true,
+        } : notification,
       );
       await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-      
       return notificationId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const markAllNotificationsAsRead = createAsyncThunk(
@@ -138,14 +124,14 @@ export const markAllNotificationsAsRead = createAsyncThunk(
     try {
       const existingNotifications = await AsyncStorage.getItem('notifications');
       const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
-      const updatedNotifications = notifications.map(notification => ({ ...notification, isRead: true }));
+      const updatedNotifications = notifications.map(notification => ({ ...notification, isRead: true,
+      }));
       await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
-      
       return true;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const deleteNotification = createAsyncThunk(
@@ -156,12 +142,11 @@ export const deleteNotification = createAsyncThunk(
       const notifications = existingNotifications ? JSON.parse(existingNotifications) : [];
       const filteredNotifications = notifications.filter(notification => notification.id !== notificationId);
       await AsyncStorage.setItem('notifications', JSON.stringify(filteredNotifications));
-      
       return notificationId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const clearAllNotifications = createAsyncThunk(
@@ -173,7 +158,7 @@ export const clearAllNotifications = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const loadNotifications = createAsyncThunk(
@@ -185,7 +170,7 @@ export const loadNotifications = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const updateNotificationSettings = createAsyncThunk(
@@ -197,7 +182,7 @@ export const updateNotificationSettings = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const loadNotificationSettings = createAsyncThunk(
@@ -208,7 +193,6 @@ export const loadNotificationSettings = createAsyncThunk(
       return settings ? JSON.parse(settings) : {
         priceAlerts: true,
         newCards: true,
-
         tradingUpdates: true,
         sound: true,
         vibration: true,
@@ -220,7 +204,7 @@ export const loadNotificationSettings = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -235,7 +219,6 @@ const initialState = {
   settings: {
     priceAlerts: true,
     newCards: true,
-
     tradingUpdates: true,
     sound: true,
     vibration: true,
@@ -258,6 +241,17 @@ const notificationSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setNotification: (state, action) => {
+      const newNotification = {
+        id: Date.now().toString(),
+        ...action.payload,
+        createdAt: new Date().toISOString(),
+        isRead: false,
+      };
+      state.notifications.unshift(newNotification);
+      state.stats.totalNotifications += 1;
+      state.stats.unreadCount += 1;
+    },
     updateStats: (state, action) => {
       state.stats = { ...state.stats, ...action.payload };
     },
@@ -266,7 +260,7 @@ const notificationSlice = createSlice({
     },
     removeScheduledNotification: (state, action) => {
       state.scheduledNotifications = state.scheduledNotifications.filter(
-        notification => notification.id !== action.payload
+        notification => notification.id !== action.payload,
       );
     },
     clearScheduledNotifications: (state) => {
@@ -286,34 +280,30 @@ const notificationSlice = createSlice({
       .addCase(requestNotificationPermissions.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // scheduleLocalNotification
+    // scheduleLocalNotification
       .addCase(scheduleLocalNotification.fulfilled, (state, action) => {
         state.scheduledNotifications.push(action.payload);
       })
       .addCase(scheduleLocalNotification.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // cancelNotification
+    // cancelNotification
       .addCase(cancelNotification.fulfilled, (state, action) => {
         state.scheduledNotifications = state.scheduledNotifications.filter(
-          notification => notification.id !== action.payload
+          notification => notification.id !== action.payload,
         );
       })
       .addCase(cancelNotification.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // cancelAllNotifications
+    // cancelAllNotifications
       .addCase(cancelAllNotifications.fulfilled, (state) => {
         state.scheduledNotifications = [];
       })
       .addCase(cancelAllNotifications.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // addNotification
+    // addNotification
       .addCase(addNotification.fulfilled, (state, action) => {
         state.notifications.unshift(action.payload);
         state.stats.totalNotifications += 1;
@@ -322,11 +312,10 @@ const notificationSlice = createSlice({
       .addCase(addNotification.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // markNotificationAsRead
+    // markNotificationAsRead
       .addCase(markNotificationAsRead.fulfilled, (state, action) => {
         const notificationIndex = state.notifications.findIndex(
-          notification => notification.id === action.payload
+          notification => notification.id === action.payload,
         );
         if (notificationIndex !== -1) {
           state.notifications[notificationIndex].isRead = true;
@@ -336,8 +325,7 @@ const notificationSlice = createSlice({
       .addCase(markNotificationAsRead.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // markAllNotificationsAsRead
+    // markAllNotificationsAsRead
       .addCase(markAllNotificationsAsRead.fulfilled, (state) => {
         state.notifications.forEach(notification => {
           notification.isRead = true;
@@ -347,25 +335,23 @@ const notificationSlice = createSlice({
       .addCase(markAllNotificationsAsRead.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // deleteNotification
+    // deleteNotification
       .addCase(deleteNotification.fulfilled, (state, action) => {
         const deletedNotification = state.notifications.find(
-          notification => notification.id === action.payload
+          notification => notification.id === action.payload,
         );
         if (deletedNotification && !deletedNotification.isRead) {
           state.stats.unreadCount = Math.max(0, state.stats.unreadCount - 1);
         }
         state.notifications = state.notifications.filter(
-          notification => notification.id !== action.payload
+          notification => notification.id !== action.payload,
         );
         state.stats.totalNotifications = Math.max(0, state.stats.totalNotifications - 1);
       })
       .addCase(deleteNotification.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // clearAllNotifications
+    // clearAllNotifications
       .addCase(clearAllNotifications.fulfilled, (state) => {
         state.notifications = [];
         state.stats.totalNotifications = 0;
@@ -375,32 +361,28 @@ const notificationSlice = createSlice({
       .addCase(clearAllNotifications.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // loadNotifications
+    // loadNotifications
       .addCase(loadNotifications.fulfilled, (state, action) => {
         state.notifications = action.payload;
         state.stats.totalNotifications = action.payload.length;
         state.stats.unreadCount = action.payload.filter(notification => !notification.isRead).length;
-        
         // 計算今天的通知數
         const today = new Date().toDateString();
-        state.stats.todayCount = action.payload.filter(notification => 
-          new Date(notification.createdAt).toDateString() === today
+        state.stats.todayCount = action.payload.filter(notification =>
+          new Date(notification.createdAt).toDateString() === today,
         ).length;
       })
       .addCase(loadNotifications.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // updateNotificationSettings
+    // updateNotificationSettings
       .addCase(updateNotificationSettings.fulfilled, (state, action) => {
         state.settings = { ...state.settings, ...action.payload };
       })
       .addCase(updateNotificationSettings.rejected, (state, action) => {
         state.error = action.payload;
       })
-      
-      // loadNotificationSettings
+    // loadNotificationSettings
       .addCase(loadNotificationSettings.fulfilled, (state, action) => {
         state.settings = action.payload;
       })
@@ -412,6 +394,7 @@ const notificationSlice = createSlice({
 
 export const {
   clearError,
+  setNotification,
   updateStats,
   addScheduledNotification,
   removeScheduledNotification,

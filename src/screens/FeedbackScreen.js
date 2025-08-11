@@ -39,18 +39,14 @@ const FeedbackScreen = ({ navigation }) => {
     try {
       const history = await feedbackService.getFeedbackHistory(50, 0);
       setFeedbackHistory(history);
-    } catch (error) {
-      console.error('Failed to load feedback history:', error);
-    }
+    } catch (error) {}
   };
 
   const loadFeedbackStats = async () => {
     try {
       const feedbackStats = await feedbackService.getFeedbackStats();
       setStats(feedbackStats);
-    } catch (error) {
-      console.error('Failed to load feedback stats:', error);
-    }
+    } catch (error) {}
   };
 
   const handleSubmitFeedback = async () => {
@@ -67,7 +63,6 @@ const FeedbackScreen = ({ navigation }) => {
         priority: selectedPriority,
         category: 'general',
       });
-
       if (result.success) {
         Alert.alert('成功', '反饋已提交，感謝您的意見！');
         setShowSubmitModal(false);
@@ -96,7 +91,6 @@ const FeedbackScreen = ({ navigation }) => {
         rating,
         comment: ratingComment.trim(),
       });
-
       if (result.success) {
         Alert.alert('成功', '評分已提交，感謝您的反饋！');
         setShowRatingModal(false);
@@ -174,160 +168,158 @@ const FeedbackScreen = ({ navigation }) => {
   };
 
   const renderFeedbackItem = ({ item }) => (
-    <View style={styles.feedbackItem}>
-      <View style={styles.feedbackHeader}>
-        <Text style={styles.feedbackTitle}>{item.title}</Text>
-        <View style={[styles.priorityBadge, { backgroundColor: getPriorityColor(item.priority) }]}>
-          <Text style={styles.priorityText}>{item.priority}</Text>
+    <View style={ styles.feedbackItem }>
+      <View style={ styles.feedbackHeader }>
+        <Text style={ styles.feedbackTitle }>{ item.title }</Text>
+        <View style={ [styles.priorityBadge, { backgroundColor: getPriorityColor(item.priority) }]}>
+          <Text style={ styles.priorityText }>{ item.priority }</Text>
         </View>
       </View>
-      <Text style={styles.feedbackDescription} numberOfLines={2}>
-        {item.description}
+      <Text style={ styles.feedbackDescription } numberOfLines={ 2 }>
+        { item.description }
       </Text>
-      <View style={styles.feedbackMeta}>
-        <Text style={styles.feedbackType}>{getFeedbackTypeLabel(item.type)}</Text>
-        <Text style={styles.feedbackTime}>{formatTime(item.createdAt)}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+      <View style={ styles.feedbackMeta }>
+        <Text style={ styles.feedbackType }>{ getFeedbackTypeLabel(item.type) }</Text>
+        <Text style={ styles.feedbackTime }>{ formatTime(item.createdAt) }</Text>
+        <View style={ [styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+          <Text style={ styles.statusText }>{ item.status }</Text>
         </View>
       </View>
     </View>
   );
 
   const renderStatsCard = () => (
-    <View style={styles.statsCard}>
-      <Text style={styles.statsTitle}>反饋統計</Text>
-      <View style={styles.statsGrid}>
-        <View style={styles.statItem}>
-          <Icon name="message-text" size={24} color="#00ffff" />
-          <Text style={styles.statNumber}>{stats?.total || 0}</Text>
-          <Text style={styles.statLabel}>總反饋</Text>
+    <View style={ styles.statsCard }>
+      <Text style={ styles.statsTitle }>反饋統計</Text>
+      <View style={ styles.statsGrid }>
+        <View style={ styles.statItem }>
+          <Icon name="message-text" size={ 24 } color="#00ffff" />
+          <Text style={ styles.statNumber }>{ stats?.total || 0 }</Text>
+          <Text style={ styles.statLabel }>總反饋</Text>
         </View>
-        <View style={styles.statItem}>
-          <Icon name="check-circle" size={24} color="#4caf50" />
-          <Text style={styles.statNumber}>{stats?.resolved || 0}</Text>
-          <Text style={styles.statLabel}>已解決</Text>
+        <View style={ styles.statItem }>
+          <Icon name="check-circle" size={ 24 } color="#4caf50" />
+          <Text style={ styles.statNumber }>{ stats?.resolved || 0 }</Text>
+          <Text style={ styles.statLabel }>已解決</Text>
         </View>
-        <View style={styles.statItem}>
-          <Icon name="clock" size={24} color="#ff9800" />
-          <Text style={styles.statNumber}>{stats?.pending || 0}</Text>
-          <Text style={styles.statLabel}>待處理</Text>
+        <View style={ styles.statItem }>
+          <Icon name="clock" size={ 24 } color="#ff9800" />
+          <Text style={ styles.statNumber }>{ stats?.pending || 0 }</Text>
+          <Text style={ styles.statLabel }>待處理</Text>
         </View>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#00ffff" />
+    <View style={ styles.container }>
+      { /* Header */ }
+      <View style={ styles.header }>
+        <TouchableOpacity style={ styles.backButton } onPress={ () => navigation.goBack() }>
+          <Icon name="arrow-left" size={ 24 } color="#00ffff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>意見反饋</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => setShowSubmitModal(true)}>
-          <Icon name="plus" size={24} color="#00ffff" />
+        <Text style={ styles.headerTitle }>意見反饋</Text>
+        <TouchableOpacity style={ styles.addButton } onPress={ () => setShowSubmitModal(true) }>
+          <Icon name="plus" size={ 24 } color="#00ffff" />
         </TouchableOpacity>
       </View>
-
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Stats */}
-        {renderStatsCard()}
-
-        {/* Action Buttons */}
-        <View style={styles.actionButtons}>
+      <ScrollView style={ styles.scrollView } showsVerticalScrollIndicator={ false }>
+        { /* Stats */ }
+        { renderStatsCard() }
+        { /* Action Buttons */ }
+        <View style={ styles.actionButtons }>
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => setShowSubmitModal(true)}
+            style={ styles.actionButton }
+            onPress={ () => setShowSubmitModal(true) }
           >
-            <Icon name="message-text" size={20} color="#00ffff" />
-            <Text style={styles.actionButtonText}>提交反饋</Text>
+            <Icon name="message-text" size={ 20 } color="#00ffff" />
+            <Text style={ styles.actionButtonText }>提交反饋</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => setShowRatingModal(true)}
+            style={ styles.actionButton }
+            onPress={ () => setShowRatingModal(true) }
           >
-            <Icon name="star" size={20} color="#ffeb3b" />
-            <Text style={styles.actionButtonText}>功能評分</Text>
+            <Icon name="star" size={ 20 } color="#ffeb3b" />
+            <Text style={ styles.actionButtonText }>功能評分</Text>
           </TouchableOpacity>
         </View>
-
-        {/* Feedback History */}
-        <View style={styles.historySection}>
-          <Text style={styles.historyTitle}>反饋歷史</Text>
-          {feedbackHistory.length > 0 ? (
-            <FlatList
-              data={feedbackHistory}
-              renderItem={renderFeedbackItem}
-              keyExtractor={(item) => item.id}
-              scrollEnabled={false}
-            />
-          ) : (
-            <View style={styles.emptyState}>
-              <Icon name="message-text-outline" size={60} color="#666" />
-              <Text style={styles.emptyText}>還沒有提交過反饋</Text>
-              <TouchableOpacity
-                style={styles.emptyButton}
-                onPress={() => setShowSubmitModal(true)}
-              >
-                <Text style={styles.emptyButtonText}>提交第一個反饋</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+        { /* Feedback History */ }
+        <View style={ styles.historySection }>
+          <Text style={ styles.historyTitle }>反饋歷史</Text>
+          {
+            feedbackHistory.length > 0 ? (
+              <FlatList
+                data={feedbackHistory
+                }
+                renderItem={ renderFeedbackItem }
+                keyExtractor={ (item) => item.id }
+                scrollEnabled={ false }
+              />
+            ) : (
+              <View style={ styles.emptyState }>
+                <Icon name="message-text-outline" size={ 60 } color="#666" />
+                <Text style={ styles.emptyText }>還沒有提交過反饋</Text>
+                <TouchableOpacity
+                  style={ styles.emptyButton }
+                  onPress={ () => setShowSubmitModal(true) }
+                >
+                  <Text style={ styles.emptyButtonText }>提交第一個反饋</Text>
+                </TouchableOpacity>
+              </View>
+            )}
         </View>
       </ScrollView>
-
-      {/* Submit Feedback Modal */}
+      { /* Submit Feedback Modal */ }
       <Modal
-        visible={showSubmitModal}
-        transparent={true}
+        visible={ showSubmitModal }
+        transparent={ true }
         animationType="slide"
-        onRequestClose={() => setShowSubmitModal(false)}
+        onRequestClose={ () => setShowSubmitModal(false) }
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>提交反饋</Text>
-              <TouchableOpacity onPress={() => setShowSubmitModal(false)}>
-                <Icon name="close" size={24} color="#00ffff" />
+        <View style={ styles.modalOverlay }>
+          <View style={ styles.modalContent }>
+            <View style={ styles.modalHeader }>
+              <Text style={ styles.modalTitle }>提交反饋</Text>
+              <TouchableOpacity onPress={ () => setShowSubmitModal(false) }>
+                <Icon name="close" size={ 24 } color="#00ffff" />
               </TouchableOpacity>
             </View>
-            <ScrollView style={styles.modalBody}>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>標題</Text>
+            <ScrollView style={ styles.modalBody }>
+              <View style={ styles.inputContainer }>
+                <Text style={ styles.inputLabel }>標題</Text>
                 <TextInput
-                  style={styles.textInput}
+                  style={ styles.textInput }
                   placeholder="請輸入反饋標題"
                   placeholderTextColor="#666"
-                  value={feedbackTitle}
-                  onChangeText={setFeedbackTitle}
+                  value={ feedbackTitle }
+                  onChangeText={ setFeedbackTitle }
                 />
               </View>
-              <View style={styles.inputContainer}>
-                <Text style={styles.inputLabel}>描述</Text>
+              <View style={ styles.inputContainer }>
+                <Text style={ styles.inputLabel }>描述</Text>
                 <TextInput
-                  style={[styles.textInput, styles.textArea]}
+                  style={ [styles.textInput, styles.textArea] }
                   placeholder="請詳細描述您的意見或建議"
                   placeholderTextColor="#666"
-                  value={feedbackDescription}
-                  onChangeText={setFeedbackDescription}
+                  value={ feedbackDescription }
+                  onChangeText={ setFeedbackDescription }
                   multiline
-                  numberOfLines={4}
+                  numberOfLines={ 4 }
                 />
               </View>
             </ScrollView>
-            <View style={styles.modalActions}>
+            <View style={ styles.modalActions }>
               <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowSubmitModal(false)}
+                style={ styles.cancelButton }
+                onPress={ () => setShowSubmitModal(false) }
               >
-                <Text style={styles.cancelButtonText}>取消</Text>
+                <Text style={ styles.cancelButtonText }>取消</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmitFeedback}
+                style={ styles.submitButton }
+                onPress={ handleSubmitFeedback }
               >
-                <Text style={styles.submitButtonText}>提交</Text>
+                <Text style={ styles.submitButtonText }>提交</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -338,94 +330,17 @@ const FeedbackScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1A1F71',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#00ffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: '#00ffff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  statsCard: {
-    backgroundColor: '#2A2F81',
-    marginHorizontal: 20,
-    borderRadius: 15,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#00ffff',
-    marginBottom: 20,
-  },
-  statsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 15,
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statNumber: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginTop: 5,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#ccc',
-    marginTop: 2,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
   actionButton: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#2A2F81',
-    paddingVertical: 15,
+    borderColor: '#00ffff',
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: '#00ffff',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginHorizontal: 5,
+    paddingVertical: 15,
   },
   actionButtonText: {
     color: '#fff',
@@ -433,71 +348,57 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 8,
   },
-  historySection: {
+  actionButtons: {
+    flexDirection: 'row',
+    marginBottom: 20,
     paddingHorizontal: 20,
   },
-  historyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 15,
-  },
-  feedbackItem: {
-    backgroundColor: '#2A2F81',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#00ffff',
-  },
-  feedbackHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  addButton: {
     alignItems: 'center',
-    marginBottom: 8,
+    borderColor: '#00ffff',
+    borderRadius: 20,
+    borderWidth: 2,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
   },
-  feedbackTitle: {
+  backButton: {
+    alignItems: 'center',
+    borderColor: '#00ffff',
+    borderRadius: 20,
+    borderWidth: 2,
+    height: 40,
+    justifyContent: 'center',
+    width: 40,
+  },
+  cancelButton: {
+    alignItems: 'center',
+    backgroundColor: '#2A2F81',
+    borderColor: '#666',
+    borderRadius: 15,
+    borderWidth: 1,
+    flex: 1,
+    marginRight: 10,
+    paddingVertical: 15,
+  },
+  cancelButtonText: {
+    color: '#666',
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+  },
+  container: {
+    backgroundColor: '#1A1F71',
     flex: 1,
   },
-  priorityBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
+  emptyButton: {
+    backgroundColor: '#00ffff',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
-  priorityText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  feedbackDescription: {
-    fontSize: 14,
-    color: '#ccc',
-    marginBottom: 10,
-  },
-  feedbackMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  feedbackType: {
-    fontSize: 12,
-    color: '#666',
-  },
-  feedbackTime: {
-    fontSize: 12,
-    color: '#666',
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: 12,
+  emptyButtonText: {
+    color: '#1A1F71',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   emptyState: {
@@ -505,108 +406,193 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    fontSize: 16,
     color: '#666',
-    marginTop: 15,
-    marginBottom: 20,
-  },
-  emptyButton: {
-    backgroundColor: '#00ffff',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  emptyButtonText: {
-    color: '#1A1F71',
     fontSize: 16,
-    fontWeight: 'bold',
+    marginBottom: 20,
+    marginTop: 15,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
+  feedbackDescription: {
+    color: '#ccc',
+    fontSize: 14,
+    marginBottom: 10,
+  },
+  feedbackHeader: {
     alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#2A2F81',
-    borderRadius: 15,
-    width: '90%',
-    maxHeight: '80%',
-    borderWidth: 1,
-    borderColor: '#00ffff',
-  },
-  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 255, 255, 0.2)',
+    marginBottom: 8,
   },
-  modalTitle: {
+  feedbackItem: {
+    backgroundColor: '#2A2F81',
+    borderColor: '#00ffff',
+    borderRadius: 15,
+    borderWidth: 1,
+    marginBottom: 10,
+    padding: 15,
+  },
+  feedbackMeta: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  feedbackTime: {
+    color: '#666',
+    fontSize: 12,
+  },
+  feedbackTitle: {
+    color: '#fff',
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  feedbackType: {
+    color: '#666',
+    fontSize: 12,
+  },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+  },
+  headerTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  historySection: { paddingHorizontal: 20 },
+  historyTitle: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  inputContainer: { marginBottom: 20 },
+  inputLabel: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  modalActions: {
+    borderTopColor: 'rgba(0, 255, 255, 0.2)',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+    padding: 20,
   },
   modalBody: {
     flex: 1,
     padding: 20,
   },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  textInput: {
-    backgroundColor: '#1A1F71',
-    borderRadius: 12,
-    padding: 15,
-    color: '#fff',
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#00ffff',
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 255, 255, 0.2)',
-  },
-  cancelButton: {
-    flex: 1,
+  modalContent: {
     backgroundColor: '#2A2F81',
-    paddingVertical: 15,
+    borderColor: '#00ffff',
     borderRadius: 15,
-    alignItems: 'center',
-    marginRight: 10,
     borderWidth: 1,
-    borderColor: '#666',
+    maxHeight: '80%',
+    width: '90%',
   },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
+  modalHeader: {
+    alignItems: 'center',
+    borderBottomColor: 'rgba(0, 255, 255, 0.2)',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 20,
+  },
+  modalOverlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  priorityBadge: {
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  priorityText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  scrollView: { flex: 1 },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statLabel: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  statNumber: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 5,
+  },
+  statsCard: {
+    backgroundColor: '#2A2F81',
+    borderColor: '#00ffff',
+    borderRadius: 15,
+    borderWidth: 1,
+    marginBottom: 20,
+    marginHorizontal: 20,
+    padding: 20,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  statsTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  statusBadge: {
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
     fontWeight: 'bold',
   },
   submitButton: {
-    flex: 1,
-    backgroundColor: '#00ffff',
-    paddingVertical: 15,
-    borderRadius: 15,
     alignItems: 'center',
+    backgroundColor: '#00ffff',
+    borderRadius: 15,
+    flex: 1,
     marginLeft: 10,
+    paddingVertical: 15,
   },
   submitButtonText: {
     color: '#1A1F71',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  textInput: {
+    backgroundColor: '#1A1F71',
+    borderColor: '#00ffff',
+    borderRadius: 12,
+    borderWidth: 1,
+    color: '#fff',
+    fontSize: 16,
+    padding: 15,
   },
 });
 

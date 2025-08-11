@@ -12,18 +12,16 @@ const loginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   socialLogin: Joi.boolean().default(false),
-  socialData: Joi.object().optional()
+  socialData: Joi.object().optional(),
 });
 
 const registerSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
-  name: Joi.string().min(2).max(50).required()
+  name: Joi.string().min(2).max(50).required(),
 });
 
-const refreshSchema = Joi.object({
-  refreshToken: Joi.string().required()
-});
+const refreshSchema = Joi.object({ refreshToken: Joi.string().required() });
 
 // 用戶登入
 router.post('/login', async (req, res, next) => {
@@ -36,12 +34,12 @@ router.post('/login', async (req, res, next) => {
         error: {
           code: 'VALIDATION_ERROR',
           message: '請求數據驗證失敗',
-          details: error.details
-        }
+          details: error.details,
+        },
       });
     }
 
-    const { email, password, socialLogin, socialData } = value;
+    const { email, password, socialLogin } = value;
 
     // 查找用戶
     const user = await User.findOne({ where: { email } });
@@ -50,8 +48,8 @@ router.post('/login', async (req, res, next) => {
         success: false,
         error: {
           code: 'INVALID_CREDENTIALS',
-          message: '郵箱或密碼錯誤'
-        }
+          message: '郵箱或密碼錯誤',
+        },
       });
     }
 
@@ -61,8 +59,8 @@ router.post('/login', async (req, res, next) => {
         success: false,
         error: {
           code: 'ACCOUNT_DISABLED',
-          message: '帳戶已被停用'
-        }
+          message: '帳戶已被停用',
+        },
       });
     }
 
@@ -73,8 +71,8 @@ router.post('/login', async (req, res, next) => {
         success: false,
         error: {
           code: 'INVALID_CREDENTIALS',
-          message: '郵箱或密碼錯誤'
-        }
+          message: '郵箱或密碼錯誤',
+        },
       });
     }
 
@@ -85,7 +83,7 @@ router.post('/login', async (req, res, next) => {
     const tokenPayload = {
       userId: user.id,
       email: user.email,
-      membership: user.membership
+      membership: user.membership,
     };
 
     const accessToken = generateAccessToken(tokenPayload);
@@ -97,10 +95,10 @@ router.post('/login', async (req, res, next) => {
       actionType: 'login',
       actionData: { socialLogin, ipAddress: req.ip },
       ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
 
-    logger.info(`用戶登入成功: ${user.email}`);
+    logger.info(`用戶登入成功: ${ user.email }`);
 
     res.json({
       success: true,
@@ -108,12 +106,11 @@ router.post('/login', async (req, res, next) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        membership: user.membership
+        membership: user.membership,
       },
       token: accessToken,
-      refreshToken: refreshToken
+      refreshToken: refreshToken,
     });
-
   } catch (error) {
     next(error);
   }
@@ -123,15 +120,16 @@ router.post('/login', async (req, res, next) => {
 router.post('/register', async (req, res, next) => {
   try {
     // 驗證請求數據
-    const { error, value } = registerSchema.validate(req.body);
+    const { error, value,
+    } = registerSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
           message: '請求數據驗證失敗',
-          details: error.details
-        }
+          details: error.details,
+        },
       });
     }
 
@@ -144,8 +142,8 @@ router.post('/register', async (req, res, next) => {
         success: false,
         error: {
           code: 'EMAIL_EXISTS',
-          message: '該郵箱已被註冊'
-        }
+          message: '該郵箱已被註冊',
+        },
       });
     }
 
@@ -153,14 +151,14 @@ router.post('/register', async (req, res, next) => {
     const user = await User.create({
       email,
       password,
-      name
+      name,
     });
 
     // 生成令牌
     const tokenPayload = {
       userId: user.id,
       email: user.email,
-      membership: user.membership
+      membership: user.membership,
     };
 
     const accessToken = generateAccessToken(tokenPayload);
@@ -170,12 +168,13 @@ router.post('/register', async (req, res, next) => {
     await UserHistory.create({
       userId: user.id,
       actionType: 'register',
-      actionData: { ipAddress: req.ip },
+      actionData: { ipAddress: req.ip,
+      },
       ipAddress: req.ip,
-      userAgent: req.get('User-Agent')
+      userAgent: req.get('User-Agent'),
     });
 
-    logger.info(`新用戶註冊成功: ${user.email}`);
+    logger.info(`新用戶註冊成功: ${ user.email }`);
 
     res.status(201).json({
       success: true,
@@ -183,25 +182,24 @@ router.post('/register', async (req, res, next) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        membership: user.membership
+        membership: user.membership,
       },
       token: accessToken,
-      refreshToken: refreshToken
+      refreshToken: refreshToken,
     });
-
   } catch (error) {
     next(error);
   }
 });
 
 // 登出
-router.post('/logout', async (req, res, next) => {
+router.post('/logout', (req, res, next) => {
   try {
     // 這裡可以實現令牌黑名單邏輯
     // 目前只是簡單返回成功
     res.json({
       success: true,
-      message: '登出成功'
+      message: '登出成功',
     });
   } catch (error) {
     next(error);
@@ -212,15 +210,16 @@ router.post('/logout', async (req, res, next) => {
 router.post('/refresh', async (req, res, next) => {
   try {
     // 驗證請求數據
-    const { error, value } = refreshSchema.validate(req.body);
+    const { error, value,
+    } = refreshSchema.validate(req.body);
     if (error) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
           message: '請求數據驗證失敗',
-          details: error.details
-        }
+          details: error.details,
+        },
       });
     }
 
@@ -236,8 +235,8 @@ router.post('/refresh', async (req, res, next) => {
         success: false,
         error: {
           code: 'INVALID_TOKEN',
-          message: '無效的刷新令牌'
-        }
+          message: '無效的刷新令牌',
+        },
       });
     }
 
@@ -245,7 +244,7 @@ router.post('/refresh', async (req, res, next) => {
     const tokenPayload = {
       userId: user.id,
       email: user.email,
-      membership: user.membership
+      membership: user.membership,
     };
 
     const newAccessToken = generateAccessToken(tokenPayload);
@@ -254,9 +253,8 @@ router.post('/refresh', async (req, res, next) => {
     res.json({
       success: true,
       token: newAccessToken,
-      refreshToken: newRefreshToken
+      refreshToken: newRefreshToken,
     });
-
   } catch (error) {
     next(error);
   }
@@ -266,14 +264,14 @@ router.post('/refresh', async (req, res, next) => {
 router.post('/verify', async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
         error: {
           code: 'AUTH_REQUIRED',
-          message: '需要認證令牌'
-        }
+          message: '需要認證令牌',
+        },
       });
     }
 
@@ -287,8 +285,8 @@ router.post('/verify', async (req, res, next) => {
         success: false,
         error: {
           code: 'INVALID_TOKEN',
-          message: '無效的令牌'
-        }
+          message: '無效的令牌',
+        },
       });
     }
 
@@ -299,10 +297,9 @@ router.post('/verify', async (req, res, next) => {
         id: user.id,
         email: user.email,
         name: user.name,
-        membership: user.membership
-      }
+        membership: user.membership,
+      },
     });
-
   } catch (error) {
     next(error);
   }

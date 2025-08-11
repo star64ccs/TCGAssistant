@@ -1,0 +1,84 @@
+# 構建輸出
+build/
+dist/
+web-build/
+android/
+ios/
+
+# 依賴項
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 快取
+.cache/
+.parcel-cache/
+.metro-cache/
+
+# 環境文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 配置文件
+metro.config.js
+babel.config.js
+jest.config.js
+webpack.config.js
+
+# 文檔
+*.md
+docs/
+
+# 測試覆蓋率
+coverage/
+
+# 日誌文件
+*.log
+
+# 臨時文件
+*.tmp
+*.temp
+
+# 系統文件
+.DS_Store
+Thumbs.db
+
+# IDE 文件
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 備份文件
+*.bak
+*.backup
+
+# 壓縮文件
+*.zip
+*.tar.gz
+*.rar
+
+# 圖片和媒體文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ico
+*.mp4
+*.mp3
+*.wav
+
+# 字體文件
+*.ttf
+*.otf
+*.woff
+*.woff2
+
+# 其他
+*.min.js
+*.bundle.js

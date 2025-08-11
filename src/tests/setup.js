@@ -8,7 +8,7 @@ jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 
 // Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'),
 );
 
 // Mock Expo modules
@@ -17,8 +17,7 @@ jest.mock('expo', () => ({
   Linking: {
     openURL: jest.fn(),
   },
-  Notifications: {
-    getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  Notifications: { getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
     requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
     scheduleNotificationAsync: jest.fn(),
     cancelScheduledNotificationAsync: jest.fn(),
@@ -44,9 +43,7 @@ jest.mock('expo', () => ({
     makeDirectoryAsync: jest.fn(),
     readDirectoryAsync: jest.fn(),
   },
-  Sharing: {
-    shareAsync: jest.fn(),
-  },
+  Sharing: { shareAsync: jest.fn() },
   Haptics: {
     impactAsync: jest.fn(),
     notificationAsync: jest.fn(),
@@ -65,8 +62,7 @@ jest.mock('@react-navigation/native', () => ({
     reset: jest.fn(),
     setOptions: jest.fn(),
   }),
-  useRoute: () => ({
-    params: {},
+  useRoute: () => ({ params: {},
   }),
 }));
 
@@ -100,7 +96,8 @@ jest.mock('axios', () => ({
     put: jest.fn(),
     delete: jest.fn(),
     interceptors: {
-      request: { use: jest.fn() },
+      request: { use: jest.fn(),
+      },
       response: { use: jest.fn() },
     },
   })),
@@ -125,88 +122,16 @@ jest.mock('react-native/Libraries/Utilities/Dimensions', () => ({
 }));
 
 // Mock Alert
-jest.mock('react-native/Libraries/Alert/Alert', () => ({
-  alert: jest.fn(),
-}));
+jest.mock('react-native/Libraries/Alert/Alert', () => ({ alert: jest.fn() }));
 
-// Mock Permissions
-jest.mock('react-native-permissions', () => ({
-  PERMISSIONS: {
-    IOS: {
-      CAMERA: 'ios.permission.CAMERA',
-      PHOTO_LIBRARY: 'ios.permission.PHOTO_LIBRARY',
-    },
-    ANDROID: {
-      CAMERA: 'android.permission.CAMERA',
-      READ_EXTERNAL_STORAGE: 'android.permission.READ_EXTERNAL_STORAGE',
-      WRITE_EXTERNAL_STORAGE: 'android.permission.WRITE_EXTERNAL_STORAGE',
-    },
-  },
-  RESULTS: {
-    UNAVAILABLE: 'unavailable',
-    DENIED: 'denied',
-    LIMITED: 'limited',
-    GRANTED: 'granted',
-    BLOCKED: 'blocked',
-  },
-  request: jest.fn(() => Promise.resolve('granted')),
-  check: jest.fn(() => Promise.resolve('granted')),
-}));
+// Mock Permissions (簡化版本)
+jest.mock('expo-permissions', () => ({}), { virtual: true });
 
-// Mock Push Notifications
-jest.mock('react-native-push-notification', () => ({
-  configure: jest.fn(),
-  localNotification: jest.fn(),
-  localNotificationSchedule: jest.fn(),
-  cancelLocalNotifications: jest.fn(),
-  cancelAllLocalNotifications: jest.fn(),
-  getScheduledLocalNotifications: jest.fn(),
-  getDeliveredNotifications: jest.fn(),
-  removeDeliveredNotifications: jest.fn(),
-  removeAllDeliveredNotifications: jest.fn(),
-  onRegister: jest.fn(),
-  onNotification: jest.fn(),
-  onAction: jest.fn(),
-  onRegistrationError: jest.fn(),
-  permissions: jest.fn(() => Promise.resolve({ alert: true, badge: true, sound: true })),
-  requestPermissions: jest.fn(() => Promise.resolve({ alert: true, badge: true, sound: true })),
-  abandonPermissions: jest.fn(),
-  checkPermissions: jest.fn(() => Promise.resolve({ alert: true, badge: true, sound: true })),
-  getInitialNotification: jest.fn(() => Promise.resolve(null)),
-  getBadgeCount: jest.fn(() => Promise.resolve(0)),
-  setBadgeCount: jest.fn(),
-  clearAllNotifications: jest.fn(),
-  getDeliveredNotifications: jest.fn(() => Promise.resolve([])),
-  removeDeliveredNotifications: jest.fn(),
-  removeAllDeliveredNotifications: jest.fn(),
-  getScheduledLocalNotifications: jest.fn(() => Promise.resolve([])),
-  cancelLocalNotifications: jest.fn(),
-  cancelAllLocalNotifications: jest.fn(),
-  createChannel: jest.fn(),
-  channelExists: jest.fn(() => Promise.resolve(false)),
-  deleteChannel: jest.fn(),
-  getChannels: jest.fn(() => Promise.resolve([])),
-  channelBlocked: jest.fn(() => Promise.resolve(false)),
-  unregister: jest.fn(),
-}));
+// Mock Notifications (簡化版本)
+jest.mock('expo-notifications', () => ({}), { virtual: true });
 
-// Mock react-native-localize
-jest.mock('react-native-localize', () => ({
-  getLocales: () => [
-    {
-      countryCode: 'TW',
-      languageTag: 'zh-TW',
-      languageCode: 'zh',
-      isRTL: false,
-    },
-  ],
-  getCountry: () => 'TW',
-  getLanguages: () => ['zh-TW'],
-  getTimeZone: () => 'Asia/Taipei',
-  isRTL: false,
-  uses24HourClock: () => true,
-  usesMetricSystem: () => true,
-}));
+// Mock Localization (簡化版本)
+jest.mock('expo-localization', () => ({}), { virtual: true });
 
 // Global test utilities
 global.console = {
@@ -224,31 +149,19 @@ global.fetch = jest.fn(() =>
     ok: true,
     json: () => Promise.resolve({}),
     text: () => Promise.resolve(''),
-  })
+  }),
 );
 
-// Mock react-native-background-job
-jest.mock('react-native-background-job', () => ({
-  register: jest.fn(() => Promise.resolve()),
-  schedule: jest.fn(() => Promise.resolve()),
-  cancel: jest.fn(() => Promise.resolve()),
-  cancelAll: jest.fn(() => Promise.resolve()),
-  isJobScheduled: jest.fn(() => Promise.resolve(false)),
-  getJobStatus: jest.fn(() => Promise.resolve('idle')),
-}));
+// Mock Background Jobs (簡化版本)
+jest.mock('react-native-background-job', () => ({}), { virtual: true });
 
-// Mock react-native-sqlite-storage
-jest.mock('react-native-sqlite-storage', () => ({
-  openDatabase: jest.fn(() => Promise.resolve({
-    executeSql: jest.fn(() => Promise.resolve()),
-    transaction: jest.fn((callback) => callback({
-      executeSql: jest.fn(),
-    })),
-    close: jest.fn(() => Promise.resolve()),
+// Mock SQLite (使用 Expo SQLite)
+jest.mock('expo-sqlite', () => ({
+  openDatabase: jest.fn(() => ({
+    exec: jest.fn(() => Promise.resolve()),
+    transaction: jest.fn(),
   })),
-  DEBUG: jest.fn(),
-  enablePromise: jest.fn(),
-}));
+}), { virtual: true });
 
 // Mock URL.createObjectURL
 global.URL.createObjectURL = jest.fn(() => 'mock-url');

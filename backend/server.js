@@ -28,7 +28,7 @@ const analyticsRoutes = require('./routes/analytics');
 const fileManagerRoutes = require('./routes/fileManager');
 
 const app = express();
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT || 3000;
 
 // 安全中間件
 app.use(helmet());
@@ -39,19 +39,19 @@ app.use(cors({
   origin: process.env.CORS_ORIGIN || '*', // 允許所有來源，用於測試
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-Membership-Type']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-User-ID', 'X-Membership-Type'],
 }));
 
 // 速率限制
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15分鐘
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // 限制每個IP 100次請求
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000, // 15分鐘
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS, 10) || 100, // 限制每個IP 100次請求
   message: {
     success: false,
     error: {
       code: 'RATE_LIMIT_EXCEEDED',
-      message: '請求頻率過高，請稍後再試'
-    }
+      message: '請求頻率過高，請稍後再試',
+    },
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -73,7 +73,7 @@ app.get('/health', (req, res) => {
     message: 'TCG Assistant API 運行正常',
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -82,26 +82,26 @@ app.get('/test', (req, res) => {
   res.json({
     success: true,
     message: '測試端點正常',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // API路由
 const apiVersion = process.env.API_VERSION || 'v1';
-app.use(`/api/${apiVersion}/auth`, authRoutes);
-app.use(`/api/${apiVersion}/cardData`, cardDataRoutes);
-app.use(`/api/${apiVersion}/collection`, authMiddleware, collectionRoutes);
-app.use(`/api/${apiVersion}/userHistory`, authMiddleware, userHistoryRoutes);
-app.use(`/api/${apiVersion}/pricePrediction`, authMiddleware, pricePredictionRoutes);
-app.use(`/api/${apiVersion}/authenticityCheck`, authMiddleware, authenticityCheckRoutes);
-app.use(`/api/${apiVersion}/aiChat`, authMiddleware, aiChatRoutes);
+app.use(`/api/${ apiVersion }/auth`, authRoutes);
+app.use(`/api/${ apiVersion }/cardData`, cardDataRoutes);
+app.use(`/api/${ apiVersion }/collection`, authMiddleware, collectionRoutes);
+app.use(`/api/${ apiVersion }/userHistory`, authMiddleware, userHistoryRoutes);
+app.use(`/api/${ apiVersion }/pricePrediction`, authMiddleware, pricePredictionRoutes);
+app.use(`/api/${ apiVersion }/authenticityCheck`, authMiddleware, authenticityCheckRoutes);
+app.use(`/api/${ apiVersion }/aiChat`, authMiddleware, aiChatRoutes);
 
 // 低優先級功能路由
-app.use(`/api/${apiVersion}/notification`, authMiddleware, notificationRoutes);
-app.use(`/api/${apiVersion}/feedback`, authMiddleware, feedbackRoutes);
-app.use(`/api/${apiVersion}/backup`, authMiddleware, backupRoutes);
-app.use(`/api/${apiVersion}/analytics`, authMiddleware, analyticsRoutes);
-app.use(`/api/${apiVersion}/fileManager`, authMiddleware, fileManagerRoutes);
+app.use(`/api/${ apiVersion }/notification`, authMiddleware, notificationRoutes);
+app.use(`/api/${ apiVersion }/feedback`, authMiddleware, feedbackRoutes);
+app.use(`/api/${ apiVersion }/backup`, authMiddleware, backupRoutes);
+app.use(`/api/${ apiVersion }/analytics`, authMiddleware, analyticsRoutes);
+app.use(`/api/${ apiVersion }/fileManager`, authMiddleware, fileManagerRoutes);
 
 // 404處理
 app.use(notFoundHandler);
@@ -115,11 +115,11 @@ const server = app.listen(PORT, '0.0.0.0', (err) => {
     logger.error('服務器啟動失敗:', err);
     process.exit(1);
   }
-  
-  logger.info(`TCG Assistant API 服務器運行在端口 ${PORT}`);
-  logger.info(`環境: ${process.env.NODE_ENV || 'development'}`);
-  logger.info(`API版本: ${apiVersion}`);
-  logger.info(`服務器地址: http://localhost:${PORT}`);
+
+  logger.info(`TCG Assistant API 服務器運行在端口 ${ PORT }`);
+  logger.info(`環境: ${ process.env.NODE_ENV || 'development' }`);
+  logger.info(`API版本: ${ apiVersion }`);
+  logger.info(`服務器地址: http://localhost:${ PORT }`);
 });
 
 // 處理服務器錯誤
@@ -128,15 +128,15 @@ server.on('error', (error) => {
     throw error;
   }
 
-  const bind = typeof PORT === 'string' ? 'Pipe ' + PORT : 'Port ' + PORT;
+  const bind = typeof PORT === 'string' ? `Pipe ${ PORT}` : `Port ${ PORT}`;
 
   switch (error.code) {
     case 'EACCES':
-      logger.error(bind + ' 需要提升權限');
+      logger.error(`${bind } 需要提升權限`);
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      logger.error(bind + ' 已被佔用');
+      logger.error(`${bind } 已被佔用`);
       process.exit(1);
       break;
     default:

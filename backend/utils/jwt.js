@@ -9,7 +9,7 @@ const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const generateAccessToken = (payload) => {
   try {
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN
+      expiresIn: JWT_EXPIRES_IN,
     });
   } catch (error) {
     logger.error('生成訪問令牌失敗:', error);
@@ -21,7 +21,7 @@ const generateAccessToken = (payload) => {
 const generateRefreshToken = (payload) => {
   try {
     return jwt.sign(payload, JWT_SECRET, {
-      expiresIn: JWT_REFRESH_EXPIRES_IN
+      expiresIn: JWT_REFRESH_EXPIRES_IN,
     });
   } catch (error) {
     logger.error('生成刷新令牌失敗:', error);
@@ -59,5 +59,5 @@ module.exports = {
   generateAccessToken,
   generateRefreshToken,
   verifyToken,
-  decodeToken
+  decodeToken,
 };

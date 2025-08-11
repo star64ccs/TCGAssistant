@@ -8,7 +8,7 @@ class FeedbackService {
   }
 
   // 提交反饋
-  async submitFeedback({ userId, type, title, description, rating, category, attachments }) {
+  submitFeedback({ userId, type, title, description, rating, category, attachments }) {
     try {
       const feedbackId = uuidv4();
       const feedback = {
@@ -24,12 +24,12 @@ class FeedbackService {
         priority: this.calculatePriority(type, rating),
         createdAt: new Date(),
         updatedAt: new Date(),
-        replies: []
+        replies: [],
       };
 
       this.feedbacks.set(feedbackId, feedback);
-      
-      logger.info(`反饋已提交: ${feedbackId} 由用戶 ${userId}`);
+
+      logger.info(`反饋已提交: ${ feedbackId } 由用戶 ${ userId }`);
       return feedback;
     } catch (error) {
       logger.error('提交反饋錯誤:', error);
@@ -38,10 +38,11 @@ class FeedbackService {
   }
 
   // 獲取用戶反饋列表
-  async getUserFeedbacks(userId, options = {}) {
+  getUserFeedbacks(userId, options = {}) {
     try {
-      const { page = 1, limit = 20, type, status, category } = options;
-      
+      const { page = 1, limit = 20, type, status, category,
+      } = options;
+
       let feedbacks = Array.from(this.feedbacks.values())
         .filter(f => f.userId === userId);
 
@@ -70,8 +71,8 @@ class FeedbackService {
           page,
           limit,
           total: feedbacks.length,
-          totalPages: Math.ceil(feedbacks.length / limit)
-        }
+          totalPages: Math.ceil(feedbacks.length / limit),
+        },
       };
     } catch (error) {
       logger.error('獲取用戶反饋錯誤:', error);
@@ -80,7 +81,7 @@ class FeedbackService {
   }
 
   // 獲取反饋詳情
-  async getFeedbackDetail(feedbackId, userId) {
+  getFeedbackDetail(feedbackId, userId) {
     try {
       const feedback = this.feedbacks.get(feedbackId);
       if (!feedback || feedback.userId !== userId) {
@@ -94,7 +95,7 @@ class FeedbackService {
 
       return {
         ...feedback,
-        replies
+        replies,
       };
     } catch (error) {
       logger.error('獲取反饋詳情錯誤:', error);
@@ -103,7 +104,7 @@ class FeedbackService {
   }
 
   // 更新反饋
-  async updateFeedback(feedbackId, userId, updates) {
+  updateFeedback(feedbackId, userId, updates) {
     try {
       const feedback = this.feedbacks.get(feedbackId);
       if (!feedback || feedback.userId !== userId) {
@@ -124,8 +125,8 @@ class FeedbackService {
       updatedFeedback.priority = this.calculatePriority(updatedFeedback.type, updatedFeedback.rating);
 
       this.feedbacks.set(feedbackId, updatedFeedback);
-      
-      logger.info(`反饋已更新: ${feedbackId}`);
+
+      logger.info(`反饋已更新: ${ feedbackId }`);
       return updatedFeedback;
     } catch (error) {
       logger.error('更新反饋錯誤:', error);
@@ -134,7 +135,7 @@ class FeedbackService {
   }
 
   // 刪除反饋
-  async deleteFeedback(feedbackId, userId) {
+  deleteFeedback(feedbackId, userId) {
     try {
       const feedback = this.feedbacks.get(feedbackId);
       if (!feedback || feedback.userId !== userId) {
@@ -142,15 +143,15 @@ class FeedbackService {
       }
 
       this.feedbacks.delete(feedbackId);
-      
+
       // 刪除相關回覆
       for (const [replyId, reply] of this.replies.entries()) {
         if (reply.feedbackId === feedbackId) {
           this.replies.delete(replyId);
         }
       }
-      
-      logger.info(`反饋已刪除: ${feedbackId}`);
+
+      logger.info(`反饋已刪除: ${ feedbackId }`);
       return { success: true };
     } catch (error) {
       logger.error('刪除反饋錯誤:', error);
@@ -159,7 +160,7 @@ class FeedbackService {
   }
 
   // 添加反饋回覆
-  async addFeedbackReply(feedbackId, userId, { message, isInternal = false }) {
+  addFeedbackReply(feedbackId, userId, { message, isInternal = false }) {
     try {
       const feedback = this.feedbacks.get(feedbackId);
       if (!feedback) {
@@ -173,19 +174,19 @@ class FeedbackService {
         userId,
         message,
         isInternal,
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       this.replies.set(replyId, reply);
-      
+
       // 更新反饋狀態
       if (!isInternal) {
         feedback.status = 'replied';
         feedback.updatedAt = new Date();
         this.feedbacks.set(feedbackId, feedback);
       }
-      
-      logger.info(`反饋回覆已添加: ${replyId}`);
+
+      logger.info(`反饋回覆已添加: ${ replyId }`);
       return reply;
     } catch (error) {
       logger.error('添加反饋回覆錯誤:', error);
@@ -194,7 +195,7 @@ class FeedbackService {
   }
 
   // 獲取反饋統計
-  async getFeedbackStats(userId) {
+  getFeedbackStats(userId) {
     try {
       const feedbacks = Array.from(this.feedbacks.values())
         .filter(f => f.userId === userId);
@@ -206,19 +207,19 @@ class FeedbackService {
           inProgress: feedbacks.filter(f => f.status === 'in_progress').length,
           replied: feedbacks.filter(f => f.status === 'replied').length,
           resolved: feedbacks.filter(f => f.status === 'resolved').length,
-          closed: feedbacks.filter(f => f.status === 'closed').length
+          closed: feedbacks.filter(f => f.status === 'closed').length,
         },
         byType: {},
         byCategory: {},
         byPriority: {
           high: feedbacks.filter(f => f.priority === 'high').length,
           medium: feedbacks.filter(f => f.priority === 'medium').length,
-          low: feedbacks.filter(f => f.priority === 'low').length
+          low: feedbacks.filter(f => f.priority === 'low').length,
         },
         averageRating: this.calculateAverageRating(feedbacks),
         recentActivity: feedbacks
           .filter(f => new Date(f.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000))
-          .length
+          .length,
       };
 
       // 按類型和分類統計
@@ -235,29 +236,31 @@ class FeedbackService {
   }
 
   // 獲取反饋分類統計
-  async getFeedbackCategoryStats(userId) {
+  getFeedbackCategoryStats(userId) {
     try {
       const feedbacks = Array.from(this.feedbacks.values())
         .filter(f => f.userId === userId);
 
-      const categoryStats = {};
-      
+      const categoryStats = {
+      };
+
       feedbacks.forEach(f => {
         if (!categoryStats[f.category]) {
           categoryStats[f.category] = {
             total: 0,
-            byStatus: {},
+            byStatus: {
+            },
             averageRating: 0,
-            ratings: []
+            ratings: [],
           };
         }
-        
+
         categoryStats[f.category].total++;
-        
+
         // 按狀態統計
-        categoryStats[f.category].byStatus[f.status] = 
+        categoryStats[f.category].byStatus[f.status] =
           (categoryStats[f.category].byStatus[f.status] || 0) + 1;
-        
+
         // 收集評分
         if (f.rating) {
           categoryStats[f.category].ratings.push(f.rating);
@@ -268,7 +271,7 @@ class FeedbackService {
       Object.keys(categoryStats).forEach(category => {
         const ratings = categoryStats[category].ratings;
         if (ratings.length > 0) {
-          categoryStats[category].averageRating = 
+          categoryStats[category].averageRating =
             ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
         }
         delete categoryStats[category].ratings;
@@ -282,18 +285,19 @@ class FeedbackService {
   }
 
   // 獲取反饋評分趨勢
-  async getFeedbackRatingTrend(userId, period = '30d') {
+  getFeedbackRatingTrend(userId, period = '30d') {
     try {
       const feedbacks = Array.from(this.feedbacks.values())
         .filter(f => f.userId === userId && f.rating);
 
       const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
       const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-      
+
       const recentFeedbacks = feedbacks.filter(f => new Date(f.createdAt) >= cutoffDate);
-      
+
       // 按日期分組
-      const dailyRatings = {};
+      const dailyRatings = {
+      };
       recentFeedbacks.forEach(f => {
         const date = f.createdAt.toISOString().split('T')[0];
         if (!dailyRatings[date]) {
@@ -306,7 +310,7 @@ class FeedbackService {
       const trend = Object.keys(dailyRatings).map(date => ({
         date,
         averageRating: dailyRatings[date].reduce((sum, rating) => sum + rating, 0) / dailyRatings[date].length,
-        count: dailyRatings[date].length
+        count: dailyRatings[date].length,
       }));
 
       return trend.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -320,7 +324,7 @@ class FeedbackService {
   async batchAction(feedbackIds, action, data, userId) {
     try {
       const results = [];
-      
+
       for (const feedbackId of feedbackIds) {
         try {
           let result;
@@ -329,13 +333,14 @@ class FeedbackService {
               result = await this.deleteFeedback(feedbackId, userId);
               break;
             case 'update_status':
-              result = await this.updateFeedback(feedbackId, userId, { status: data.status });
+              result = await this.updateFeedback(feedbackId, userId, { status: data.status,
+              });
               break;
             case 'add_reply':
               result = await this.addFeedbackReply(feedbackId, userId, { message: data.message, isInternal: data.isInternal });
               break;
             default:
-              throw new Error(`不支持的操作: ${action}`);
+              throw new Error(`不支持的操作: ${ action }`);
           }
           results.push({ success: true, feedbackId, result });
         } catch (error) {
@@ -349,8 +354,8 @@ class FeedbackService {
         summary: {
           total: feedbackIds.length,
           successful: results.filter(r => r.success).length,
-          failed: results.filter(r => !r.success).length
-        }
+          failed: results.filter(r => !r.success).length,
+        },
       };
     } catch (error) {
       logger.error('批量操作反饋錯誤:', error);
@@ -359,10 +364,11 @@ class FeedbackService {
   }
 
   // 導出反饋數據
-  async exportFeedbackData(userId, options = {}) {
+  exportFeedbackData(userId, options = {}) {
     try {
-      const { format = 'json', startDate, endDate, type, category } = options;
-      
+      const { format = 'json', startDate, endDate, type, category,
+      } = options;
+
       let feedbacks = Array.from(this.feedbacks.values())
         .filter(f => f.userId === userId);
 
@@ -384,7 +390,8 @@ class FeedbackService {
       const feedbacksWithReplies = feedbacks.map(f => {
         const replies = Array.from(this.replies.values())
           .filter(r => r.feedbackId === f.id);
-        return { ...f, replies };
+        return { ...f, replies,
+        };
       });
 
       if (format === 'csv') {
@@ -395,7 +402,7 @@ class FeedbackService {
         format,
         total: feedbacksWithReplies.length,
         data: feedbacksWithReplies,
-        exportedAt: new Date()
+        exportedAt: new Date(),
       };
     } catch (error) {
       logger.error('導出反饋數據錯誤:', error);
@@ -423,7 +430,7 @@ class FeedbackService {
     if (ratedFeedbacks.length === 0) {
       return 0;
     }
-    
+
     const totalRating = ratedFeedbacks.reduce((sum, f) => sum + f.rating, 0);
     return totalRating / ratedFeedbacks.length;
   }
@@ -441,17 +448,19 @@ class FeedbackService {
       f.status,
       f.priority,
       f.createdAt.toISOString(),
-      f.updatedAt.toISOString()
+      f.updatedAt.toISOString(),
     ]);
 
     const csvContent = [headers, ...rows]
-      .map(row => row.map(cell => `"${cell}"`).join(','))
+      .map(row => row.map(cell => `"${cell
+      }"`).join(','))
       .join('\n');
 
     return {
       format: 'csv',
       content: csvContent,
-      filename: `feedback_export_${new Date().toISOString().split('T')[0]}.csv`
+      filename: `feedback_export_${new Date().toISOString().split('T')[0]
+      }.csv`,
     };
   }
 
@@ -462,20 +471,20 @@ class FeedbackService {
         title: 'Bug報告',
         description: '請詳細描述您遇到的問題...',
         type: 'bug',
-        category: 'technical'
+        category: 'technical',
       },
       feature: {
         title: '功能建議',
         description: '請描述您希望添加的功能...',
         type: 'feature_request',
-        category: 'enhancement'
+        category: 'enhancement',
       },
       general: {
         title: '一般反饋',
         description: '請分享您的想法和建議...',
         type: 'general',
-        category: 'feedback'
-      }
+        category: 'feedback',
+      },
     };
   }
 }

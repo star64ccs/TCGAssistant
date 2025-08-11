@@ -18,22 +18,23 @@ class NotificationService {
         type,
         title,
         message,
-        data: data || {},
+        data: data || {
+        },
         priority,
         isRead: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       this.notifications.set(notificationId, notification);
-      
+
       // 檢查是否需要發送推送通知
       const settings = await this.getNotificationSettings(userId);
       if (settings.pushEnabled && this.shouldSendPush(type, priority)) {
         await this.sendPushNotification(userId, notification);
       }
 
-      logger.info(`通知已發送: ${notificationId} 給用戶 ${userId}`);
+      logger.info(`通知已發送: ${ notificationId } 給用戶 ${ userId }`);
       return notification;
     } catch (error) {
       logger.error('發送通知錯誤:', error);
@@ -42,10 +43,11 @@ class NotificationService {
   }
 
   // 獲取用戶通知列表
-  async getUserNotifications(userId, options = {}) {
+  getUserNotifications(userId, options = {}) {
     try {
-      const { page = 1, limit = 20, type, isRead } = options;
-      
+      const { page = 1, limit = 20, type, isRead,
+      } = options;
+
       let notifications = Array.from(this.notifications.values())
         .filter(n => n.userId === userId);
 
@@ -71,8 +73,8 @@ class NotificationService {
           page,
           limit,
           total: notifications.length,
-          totalPages: Math.ceil(notifications.length / limit)
-        }
+          totalPages: Math.ceil(notifications.length / limit),
+        },
       };
     } catch (error) {
       logger.error('獲取用戶通知錯誤:', error);
@@ -81,7 +83,7 @@ class NotificationService {
   }
 
   // 標記通知為已讀
-  async markAsRead(notificationId, userId) {
+  markAsRead(notificationId, userId) {
     try {
       const notification = this.notifications.get(notificationId);
       if (!notification || notification.userId !== userId) {
@@ -90,8 +92,8 @@ class NotificationService {
 
       notification.isRead = true;
       notification.updatedAt = new Date();
-      
-      logger.info(`通知已標記為已讀: ${notificationId}`);
+
+      logger.info(`通知已標記為已讀: ${ notificationId }`);
       return { success: true, notification };
     } catch (error) {
       logger.error('標記通知已讀錯誤:', error);
@@ -118,8 +120,8 @@ class NotificationService {
         summary: {
           total: notificationIds.length,
           successful: results.filter(r => r.success).length,
-          failed: results.filter(r => !r.success).length
-        }
+          failed: results.filter(r => !r.success).length,
+        },
       };
     } catch (error) {
       logger.error('批量標記通知已讀錯誤:', error);
@@ -128,7 +130,7 @@ class NotificationService {
   }
 
   // 刪除通知
-  async deleteNotification(notificationId, userId) {
+  deleteNotification(notificationId, userId) {
     try {
       const notification = this.notifications.get(notificationId);
       if (!notification || notification.userId !== userId) {
@@ -136,8 +138,8 @@ class NotificationService {
       }
 
       this.notifications.delete(notificationId);
-      
-      logger.info(`通知已刪除: ${notificationId}`);
+
+      logger.info(`通知已刪除: ${ notificationId }`);
       return { success: true };
     } catch (error) {
       logger.error('刪除通知錯誤:', error);
@@ -146,7 +148,7 @@ class NotificationService {
   }
 
   // 獲取通知統計
-  async getNotificationStats(userId) {
+  getNotificationStats(userId) {
     try {
       const notifications = Array.from(this.notifications.values())
         .filter(n => n.userId === userId);
@@ -155,15 +157,16 @@ class NotificationService {
         total: notifications.length,
         unread: notifications.filter(n => !n.isRead).length,
         read: notifications.filter(n => n.isRead).length,
-        byType: {},
+        byType: {
+        },
         byPriority: {
           high: notifications.filter(n => n.priority === 'high').length,
           normal: notifications.filter(n => n.priority === 'normal').length,
-          low: notifications.filter(n => n.priority === 'low').length
+          low: notifications.filter(n => n.priority === 'low').length,
         },
         recentActivity: notifications
           .filter(n => new Date(n.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
-          .length
+          .length,
       };
 
       // 按類型統計
@@ -182,11 +185,12 @@ class NotificationService {
   async updateNotificationSettings(userId, settings) {
     try {
       const currentSettings = await this.getNotificationSettings(userId);
-      const updatedSettings = { ...currentSettings, ...settings, updatedAt: new Date() };
-      
+      const updatedSettings = { ...currentSettings, ...settings, updatedAt: new Date(),
+      };
+
       this.notificationSettings.set(userId, updatedSettings);
-      
-      logger.info(`通知設置已更新: ${userId}`);
+
+      logger.info(`通知設置已更新: ${ userId }`);
       return updatedSettings;
     } catch (error) {
       logger.error('更新通知設置錯誤:', error);
@@ -195,7 +199,7 @@ class NotificationService {
   }
 
   // 獲取通知設置
-  async getNotificationSettings(userId) {
+  getNotificationSettings(userId) {
     try {
       const settings = this.notificationSettings.get(userId);
       if (!settings) {
@@ -205,23 +209,24 @@ class NotificationService {
           emailEnabled: false,
           inAppEnabled: true,
           types: {
-            system: { push: true, email: false, inApp: true },
+            system: { push: true, email: false, inApp: true,
+            },
             price: { push: true, email: true, inApp: true },
             security: { push: true, email: true, inApp: true },
-            marketing: { push: false, email: false, inApp: false }
+            marketing: { push: false, email: false, inApp: false },
           },
           quietHours: {
             enabled: false,
             start: '22:00',
-            end: '08:00'
+            end: '08:00',
           },
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
-        
+
         this.notificationSettings.set(userId, defaultSettings);
         return defaultSettings;
       }
-      
+
       return settings;
     } catch (error) {
       logger.error('獲取通知設置錯誤:', error);
@@ -230,18 +235,19 @@ class NotificationService {
   }
 
   // 訂閱推送通知
-  async subscribeToPush(userId, subscription) {
+  subscribeToPush(userId, subscription) {
     try {
-      const { endpoint, keys } = subscription;
-      
+      const { endpoint, keys,
+      } = subscription;
+
       this.pushSubscriptions.set(userId, {
         endpoint,
         keys,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
-      
-      logger.info(`用戶已訂閱推送通知: ${userId}`);
+
+      logger.info(`用戶已訂閱推送通知: ${ userId }`);
       return { success: true, subscription };
     } catch (error) {
       logger.error('訂閱推送通知錯誤:', error);
@@ -250,11 +256,12 @@ class NotificationService {
   }
 
   // 取消訂閱推送通知
-  async unsubscribeFromPush(userId) {
+  unsubscribeFromPush(userId) {
     try {
       this.pushSubscriptions.delete(userId);
-      
-      logger.info(`用戶已取消訂閱推送通知: ${userId}`);
+
+      logger.info(`用戶已取消訂閱推送通知: ${userId
+      }`);
       return { success: true };
     } catch (error) {
       logger.error('取消訂閱推送通知錯誤:', error);
@@ -263,15 +270,16 @@ class NotificationService {
   }
 
   // 發送推送通知
-  async sendPushNotification(userId, notification) {
+  sendPushNotification(userId, notification) {
     try {
       const subscription = this.pushSubscriptions.get(userId);
       if (!subscription) {
-        logger.warn(`用戶 ${userId} 未訂閱推送通知`);
+        logger.warn(`用戶 ${userId
+        } 未訂閱推送通知`);
         return;
       }
 
-      // 這裡應該集成實際的推送服務（如 Firebase Cloud Messaging）
+      // 集成推送服務（如 Firebase Cloud Messaging）
       // 目前使用模擬實現
       const pushPayload = {
         title: notification.title,
@@ -280,10 +288,10 @@ class NotificationService {
         icon: '/icon.png',
         badge: '/badge.png',
         tag: notification.type,
-        requireInteraction: notification.priority === 'high'
+        requireInteraction: notification.priority === 'high',
       };
 
-      logger.info(`推送通知已發送: ${notification.id} 給用戶 ${userId}`);
+      logger.info(`推送通知已發送: ${ notification.id } 給用戶 ${ userId }`);
       return { success: true, payload: pushPayload };
     } catch (error) {
       logger.error('發送推送通知錯誤:', error);
@@ -293,20 +301,20 @@ class NotificationService {
 
   // 檢查是否應該發送推送通知
   shouldSendPush(type, priority) {
-    // 檢查靜默時間
+  // 檢查靜默時間
     const now = new Date();
     const currentHour = now.getHours();
-    
+
     // 簡單的靜默時間檢查（22:00 - 08:00）
     if (currentHour >= 22 || currentHour < 8) {
       return priority === 'high'; // 只有高優先級通知在靜默時間發送
     }
-    
+
     return true;
   }
 
   // 清理舊通知
-  async cleanupOldNotifications(daysToKeep = 30) {
+  cleanupOldNotifications(daysToKeep = 30) {
     try {
       const cutoffDate = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000);
       let deletedCount = 0;
@@ -318,7 +326,7 @@ class NotificationService {
         }
       }
 
-      logger.info(`清理了 ${deletedCount} 條舊通知`);
+      logger.info(`清理了 ${ deletedCount } 條舊通知`);
       return { success: true, deletedCount };
     } catch (error) {
       logger.error('清理舊通知錯誤:', error);
@@ -333,26 +341,26 @@ class NotificationService {
         title: '歡迎使用TCG助手',
         message: '感謝您註冊TCG助手！開始探索卡牌世界吧。',
         type: 'system',
-        priority: 'normal'
+        priority: 'normal',
       },
       priceAlert: {
         title: '價格提醒',
         message: '您關注的卡牌價格有變動',
         type: 'price',
-        priority: 'normal'
+        priority: 'normal',
       },
       securityAlert: {
         title: '安全提醒',
         message: '檢測到異常登入活動',
         type: 'security',
-        priority: 'high'
+        priority: 'high',
       },
       featureUpdate: {
         title: '功能更新',
         message: '新功能已上線，快來體驗吧！',
         type: 'marketing',
-        priority: 'low'
-      }
+        priority: 'low',
+      },
     };
   }
 
@@ -361,7 +369,7 @@ class NotificationService {
     try {
       const templates = this.getNotificationTemplates();
       const template = templates[templateKey];
-      
+
       if (!template) {
         throw new Error('通知模板不存在');
       }
@@ -372,7 +380,7 @@ class NotificationService {
         title: template.title,
         message: template.message,
         data: customData,
-        priority: template.priority
+        priority: template.priority,
       });
     } catch (error) {
       logger.error('發送系統通知錯誤:', error);

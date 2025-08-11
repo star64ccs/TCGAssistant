@@ -1,6 +1,6 @@
 const express = require('express');
 const { Op } = require('sequelize');
-const { logger } = require('../utils/logger');
+// const { logger } = require('../utils/logger');
 const Card = require('../models/Card');
 
 const router = express.Router();
@@ -11,9 +11,7 @@ router.get('/pokemon', async (req, res, next) => {
     const { limit = 1000, offset = 0, series, rarity, search } = req.query;
 
     // 構建查詢條件
-    const where = {
-      gameType: 'pokemon'
-    };
+    const where = { gameType: 'pokemon' };
 
     if (series) {
       where.series = series;
@@ -25,15 +23,15 @@ router.get('/pokemon', async (req, res, next) => {
 
     if (search) {
       where.name = {
-        [Op.iLike]: `%${search}%`
+        [Op.iLike]: `%${search}%`,
       };
     }
 
     const cards = await Card.findAndCountAll({
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [['name', 'ASC']]
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+      order: [['name', 'ASC']],
     });
 
     // 轉換數據格式以匹配前端期望
@@ -53,16 +51,15 @@ router.get('/pokemon', async (req, res, next) => {
       thumbnailUrl: card.thumbnailUrl,
       releaseDate: card.releaseDate,
       isPromo: card.isPromo,
-      isSecretRare: card.isSecretRare
+      isSecretRare: card.isSecretRare,
     }));
 
     res.json({
       success: true,
       cards: formattedCards,
       total: cards.count,
-      hasMore: cards.count > parseInt(offset) + parseInt(limit)
+      hasMore: cards.count > parseInt(offset, 10) + parseInt(limit, 10),
     });
-
   } catch (error) {
     next(error);
   }
@@ -74,9 +71,7 @@ router.get('/onepiece', async (req, res, next) => {
     const { limit = 1000, offset = 0, series, rarity, search } = req.query;
 
     // 構建查詢條件
-    const where = {
-      gameType: 'onepiece'
-    };
+    const where = { gameType: 'onepiece' };
 
     if (series) {
       where.series = series;
@@ -88,15 +83,15 @@ router.get('/onepiece', async (req, res, next) => {
 
     if (search) {
       where.name = {
-        [Op.iLike]: `%${search}%`
+        [Op.iLike]: `%${search}%`,
       };
     }
 
     const cards = await Card.findAndCountAll({
       where,
-      limit: parseInt(limit),
-      offset: parseInt(offset),
-      order: [['name', 'ASC']]
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+      order: [['name', 'ASC']],
     });
 
     // 轉換數據格式以匹配前端期望
@@ -116,16 +111,15 @@ router.get('/onepiece', async (req, res, next) => {
       thumbnailUrl: card.thumbnailUrl,
       releaseDate: card.releaseDate,
       isPromo: card.isPromo,
-      isSecretRare: card.isSecretRare
+      isSecretRare: card.isSecretRare,
     }));
 
     res.json({
       success: true,
       cards: formattedCards,
       total: cards.count,
-      hasMore: cards.count > parseInt(offset) + parseInt(limit)
+      hasMore: cards.count > parseInt(offset, 10) + parseInt(limit, 10),
     });
-
   } catch (error) {
     next(error);
   }
@@ -145,15 +139,15 @@ router.get('/available', async (req, res, next) => {
 
     if (search) {
       where.name = {
-        [Op.iLike]: `%${search}%`
+        [Op.iLike]: `%${search}%`,
       };
     }
 
     const cards = await Card.findAll({
       where,
-      limit: parseInt(limit),
+      limit: parseInt(limit, 10),
       order: [['name', 'ASC']],
-      attributes: ['cardId', 'name', 'gameType', 'series', 'cardNumber', 'rarity', 'imageUrl']
+      attributes: ['cardId', 'name', 'gameType', 'series', 'cardNumber', 'rarity', 'imageUrl'],
     });
 
     // 轉換數據格式以匹配前端期望
@@ -164,14 +158,13 @@ router.get('/available', async (req, res, next) => {
       series: card.series,
       number: card.cardNumber,
       rarity: card.rarity,
-      imageUrl: card.imageUrl
+      imageUrl: card.imageUrl,
     }));
 
     res.json({
       success: true,
-      cards: formattedCards
+      cards: formattedCards,
     });
-
   } catch (error) {
     next(error);
   }
@@ -183,7 +176,7 @@ router.get('/:id', async (req, res, next) => {
     const { id } = req.params;
 
     const card = await Card.findOne({
-      where: { cardId: id }
+      where: { cardId: id },
     });
 
     if (!card) {
@@ -191,8 +184,8 @@ router.get('/:id', async (req, res, next) => {
         success: false,
         error: {
           code: 'CARD_NOT_FOUND',
-          message: '卡牌不存在'
-        }
+          message: '卡牌不存在',
+        },
       });
     }
 
@@ -216,14 +209,13 @@ router.get('/:id', async (req, res, next) => {
       isPromo: card.isPromo,
       isSecretRare: card.isSecretRare,
       currentPrice: card.currentPrice,
-      priceUpdatedAt: card.priceUpdatedAt
+      priceUpdatedAt: card.priceUpdatedAt,
     };
 
     res.json({
       success: true,
-      card: formattedCard
+      card: formattedCard,
     });
-
   } catch (error) {
     next(error);
   }

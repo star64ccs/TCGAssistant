@@ -20,7 +20,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_002',
@@ -39,7 +39,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_003',
@@ -58,7 +58,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_004',
@@ -77,7 +77,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_005',
@@ -96,7 +96,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_006',
@@ -115,7 +115,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_007',
@@ -134,7 +134,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_008',
@@ -153,7 +153,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_009',
@@ -172,7 +172,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_010',
@@ -191,7 +191,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_011',
@@ -210,7 +210,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_012',
@@ -229,7 +229,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_013',
@@ -248,7 +248,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_014',
@@ -267,7 +267,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_015',
@@ -286,7 +286,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'pokemon_base_016',
@@ -305,7 +305,7 @@ export const pokemonCards = [
     game_type: 'pokemon',
     release_date: '1999-01-09',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   // 繼續添加更多卡牌...
   // 這裡只展示前16張Holo Rare卡牌，實際檔案會包含完整的Base Set (102張)
@@ -320,7 +320,7 @@ export const pokemonSeries = [
     code: 'BS',
     release_date: '1999-01-09',
     total_cards: 102,
-    description: 'The original Pokémon Trading Card Game set'
+    description: 'The original Pokémon Trading Card Game set',
   },
   {
     id: 'base2',
@@ -328,7 +328,7 @@ export const pokemonSeries = [
     code: 'BS2',
     release_date: '2000-02-24',
     total_cards: 130,
-    description: 'A reprint set featuring cards from Base Set and Jungle'
+    description: 'A reprint set featuring cards from Base Set and Jungle',
   },
   {
     id: 'base3',
@@ -336,7 +336,7 @@ export const pokemonSeries = [
     code: 'BS3',
     release_date: '2000-12-10',
     total_cards: 130,
-    description: 'Another reprint set with cards from Base Set, Jungle, and Fossil'
+    description: 'Another reprint set with cards from Base Set, Jungle, and Fossil',
   },
   {
     id: 'jungle',
@@ -344,7 +344,7 @@ export const pokemonSeries = [
     code: 'JU',
     release_date: '1999-06-16',
     total_cards: 64,
-    description: 'The first expansion set featuring jungle-dwelling Pokémon'
+    description: 'The first expansion set featuring jungle-dwelling Pokémon',
   },
   {
     id: 'fossil',
@@ -352,7 +352,7 @@ export const pokemonSeries = [
     code: 'FO',
     release_date: '1999-10-10',
     total_cards: 62,
-    description: 'Features prehistoric Pokémon revived from fossils'
+    description: 'Features prehistoric Pokémon revived from fossils',
   },
   {
     id: 'team_rocket',
@@ -360,7 +360,7 @@ export const pokemonSeries = [
     code: 'TR',
     release_date: '2000-04-24',
     total_cards: 83,
-    description: 'Features Dark Pokémon and Team Rocket-themed cards'
+    description: 'Features Dark Pokémon and Team Rocket-themed cards',
   },
   {
     id: 'gym_heroes',
@@ -368,7 +368,7 @@ export const pokemonSeries = [
     code: 'GH',
     release_date: '2000-08-14',
     total_cards: 132,
-    description: 'Features Gym Leader Pokémon and their signature cards'
+    description: 'Features Gym Leader Pokémon and their signature cards',
   },
   {
     id: 'gym_challenge',
@@ -376,19 +376,19 @@ export const pokemonSeries = [
     code: 'GC',
     release_date: '2000-10-16',
     total_cards: 132,
-    description: 'More Gym Leader cards and powerful Pokémon'
-  }
+    description: 'More Gym Leader cards and powerful Pokémon',
+  },
 ];
 
 // 卡牌稀有度資訊
 export const pokemonRarities = [
   'Common',
-  'Uncommon', 
+  'Uncommon',
   'Rare',
   'Holo Rare',
   'Ultra Rare',
   'Secret Rare',
-  'Promo'
+  'Promo',
 ];
 
 // 卡牌類型資訊
@@ -403,5 +403,5 @@ export const pokemonTypes = [
   'Lightning',
   'Metal',
   'Psychic',
-  'Water'
+  'Water',
 ];

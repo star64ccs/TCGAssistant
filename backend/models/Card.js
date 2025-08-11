@@ -5,101 +5,95 @@ const Card = sequelize.define('Card', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   },
   cardId: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: true,
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   series: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   setCode: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   cardNumber: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   rarity: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   cardType: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   hp: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
   },
   attack: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
   },
   defense: {
     type: DataTypes.INTEGER,
-    allowNull: true
+    allowNull: true,
   },
   description: {
     type: DataTypes.TEXT,
-    allowNull: true
+    allowNull: true,
   },
   imageUrl: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   thumbnailUrl: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   gameType: {
     type: DataTypes.ENUM('pokemon', 'onepiece', 'yugioh', 'magic'),
-    allowNull: false
+    allowNull: false,
   },
   releaseDate: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
   isPromo: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   isSecretRare: {
     type: DataTypes.BOOLEAN,
-    defaultValue: false
+    defaultValue: false,
   },
   currentPrice: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: true
+    allowNull: true,
   },
   priceUpdatedAt: {
     type: DataTypes.DATE,
-    allowNull: true
-  }
+    allowNull: true,
+  },
 }, {
   tableName: 'cards',
   indexes: [
     {
-      fields: ['gameType']
+      fields: ['game_type'],
     },
-    {
-      fields: ['series']
-    },
-    {
-      fields: ['rarity']
-    },
-    {
-      fields: ['name']
-    }
-  ]
+    { fields: ['series'] },
+    { fields: ['rarity'] },
+    { fields: ['name'] },
+  ],
 });
 
 module.exports = Card;

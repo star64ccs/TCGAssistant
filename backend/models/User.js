@@ -6,48 +6,48 @@ const User = sequelize.define('User', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
     validate: {
-      isEmail: true
-    }
+      isEmail: true,
+    },
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   membership: {
     type: DataTypes.ENUM('FREE', 'VIP', 'PREMIUM'),
-    defaultValue: 'FREE'
+    defaultValue: 'FREE',
   },
   membershipExpiry: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
   isActive: {
     type: DataTypes.BOOLEAN,
-    defaultValue: true
+    defaultValue: true,
   },
   lastLogin: {
     type: DataTypes.DATE,
-    allowNull: true
+    allowNull: true,
   },
   preferences: {
     type: DataTypes.JSONB,
     defaultValue: {
       language: 'zh-TW',
       currency: 'TWD',
-      notifications: true
-    }
-  }
+      notifications: true,
+    },
+  },
 }, {
   tableName: 'users',
   hooks: {
@@ -60,8 +60,8 @@ const User = sequelize.define('User', {
       if (user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 12);
       }
-    }
-  }
+    },
+  },
 });
 
 // 實例方法
@@ -70,7 +70,7 @@ User.prototype.comparePassword = async function(candidatePassword) {
 };
 
 User.prototype.toJSON = function() {
-  const values = Object.assign({}, this.get());
+  const values = Object.assign({ }, this.get());
   delete values.password;
   return values;
 };

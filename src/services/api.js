@@ -1,10 +1,9 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { getApiBaseUrl, getApiTimeout } from '../config/api';
+import { getApiBaseUrl, getApiTimeout, getApiVersion, getFullApiUrl } from '../config/unifiedConfig';
 
 // API 基礎配置
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = getFullApiUrl('');
 const API_TIMEOUT = getApiTimeout();
 
 // 創建 axios 實例
@@ -20,43 +19,39 @@ const apiClient = axios.create({
 // 請求攔截器
 apiClient.interceptors.request.use(
   async (config) => {
-    // 添加認證 token
+  // 添加認證 token
     const token = await AsyncStorage.getItem('authToken');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token
+      }`;
     }
-    
+
     // 添加用戶 ID
     const userId = await AsyncStorage.getItem('userId');
     if (userId) {
       config.headers['X-User-ID'] = userId;
     }
-    
+
     // 添加會員權限信息
     const membership = await AsyncStorage.getItem('userMembership');
     if (membership) {
       const membershipData = JSON.parse(membership);
       config.headers['X-Membership-Type'] = membershipData.type;
     }
-    
-    console.log('API Request:', config.method?.toUpperCase(), config.url);
+
     return config;
   },
   (error) => {
-    console.error('API Request Error:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // 響應攔截器
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response.status, response.config.url);
     return response;
   },
   async (error) => {
-    console.error('API Response Error:', error.response?.status, error.response?.data);
-    
     // 處理 401 未授權錯誤
     if (error.response?.status === 401) {
       await AsyncStorage.removeItem('authToken');
@@ -64,19 +59,15 @@ apiClient.interceptors.response.use(
       // 可以觸發重新登入
       // store.dispatch(logout());
     }
-    
+
     // 處理 403 權限不足錯誤
-    if (error.response?.status === 403) {
-      console.warn('權限不足，可能需要升級會員');
-    }
-    
+    if (error.response?.status === 403) {}
+
     // 處理 429 請求過於頻繁
-    if (error.response?.status === 429) {
-      console.warn('請求過於頻繁，請稍後再試');
-    }
-    
+    if (error.response?.status === 429) {}
+
     return Promise.reject(error);
-  }
+  },
 );
 
 // API 端點配置
@@ -89,7 +80,7 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh',
     VERIFY: '/auth/verify',
   },
-  
+
   // 卡牌資料相關
   CARD_DATA: {
     POKEMON: '/cardData/pokemon',
@@ -97,7 +88,7 @@ export const API_ENDPOINTS = {
     AVAILABLE: '/cardData/available',
     BY_ID: '/cardData/:id',
   },
-  
+
   // 收藏相關
   COLLECTION: {
     GET: '/collection',
@@ -106,7 +97,7 @@ export const API_ENDPOINTS = {
     UPDATE: '/collection/update',
     STATS: '/collection/stats',
   },
-  
+
   // 用戶歷史相關
   USER_HISTORY: {
     RECENT: '/userHistory/recent',
@@ -114,23 +105,23 @@ export const API_ENDPOINTS = {
     STATS: '/userHistory/stats',
     CLEAR: '/userHistory/clear',
   },
-  
+
   // 分析相關
   ANALYSIS: {
     CENTERING: '/analysis/centering',
     AUTHENTICITY: '/analysis/authenticity',
     QUALITY: '/analysis/quality',
   },
-  
-  // 收藏相關
-  COLLECTION: {
+
+  // 收藏管理相關
+  COLLECTION_MANAGEMENT: {
     LIST: '/collection',
     ADD: '/collection/add',
     REMOVE: '/collection/remove',
     UPDATE: '/collection/update',
     STATS: '/collection/stats',
   },
-  
+
   // 會員相關
   MEMBERSHIP: {
     INFO: '/membership/info',
@@ -138,7 +129,7 @@ export const API_ENDPOINTS = {
     TRIAL: '/membership/trial',
     USAGE: '/membership/usage',
   },
-  
+
   // 用戶相關
   USER: {
     PROFILE: '/user/profile',
@@ -146,20 +137,20 @@ export const API_ENDPOINTS = {
     HISTORY: '/user/history',
     PREFERENCES: '/user/preferences',
   },
-  
+
   // AI 助手相關
   AI: {
     CHAT: '/ai/chat',
     SUGGESTIONS: '/ai/suggestions',
     ANALYSIS: '/ai/analysis',
   },
-  
+
   // 文件上傳
   UPLOAD: {
     IMAGE: '/upload/image',
     BATCH: '/upload/batch',
   },
-  
+
   // 分享相關
   SHARE: {
     CREATE: '/share/create',
@@ -173,13 +164,14 @@ export const apiService = {
   // GET 請求
   get: async (endpoint, params = {}) => {
     try {
-      const response = await apiClient.get(endpoint, { params });
+      const response = await apiClient.get(endpoint, { params,
+      });
       return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
-  
+
   // POST 請求
   post: async (endpoint, data = {}) => {
     try {
@@ -189,7 +181,7 @@ export const apiService = {
       throw handleApiError(error);
     }
   },
-  
+
   // PUT 請求
   put: async (endpoint, data = {}) => {
     try {
@@ -199,7 +191,7 @@ export const apiService = {
       throw handleApiError(error);
     }
   },
-  
+
   // DELETE 請求
   delete: async (endpoint) => {
     try {
@@ -209,41 +201,38 @@ export const apiService = {
       throw handleApiError(error);
     }
   },
-  
+
   // 文件上傳
   upload: async (endpoint, file, onProgress = null) => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
       const response = await apiClient.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: onProgress,
       });
-      
       return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
-  
+
   // 批量上傳
   uploadBatch: async (endpoint, files, onProgress = null) => {
     try {
       const formData = new FormData();
       files.forEach((file, index) => {
-        formData.append(`files[${index}]`, file);
+        formData.append(`files[${index
+        }]`, file);
       });
-      
       const response = await apiClient.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
         onUploadProgress: onProgress,
       });
-      
       return response.data;
     } catch (error) {
       throw handleApiError(error);
@@ -255,30 +244,31 @@ export const apiService = {
 function handleApiError(error) {
   if (error.response) {
     // 服務器響應錯誤
-    const { status, data } = error.response;
-    
+    const { status, data,
+    } = error.response;
+
     switch (status) {
       case 400:
-        return new Error(data.message || '請求參數錯誤');
+        throw new Error(data.message || '請求參數錯誤');
       case 401:
-        return new Error('未授權，請重新登入');
+        throw new Error('未授權，請重新登入');
       case 403:
-        return new Error('權限不足，可能需要升級會員');
+        throw new Error('權限不足，可能需要升級會員');
       case 404:
-        return new Error('請求的資源不存在');
+        throw new Error('請求的資源不存在');
       case 429:
-        return new Error('請求過於頻繁，請稍後再試');
+        throw new Error('請求過於頻繁，請稍後再試');
       case 500:
-        return new Error('服務器內部錯誤');
+        throw new Error('服務器內部錯誤');
       default:
-        return new Error(data.message || '未知錯誤');
+        throw new Error(data.message || '未知錯誤');
     }
   } else if (error.request) {
-    // 網路錯誤
-    return new Error('網路連接失敗，請檢查網路設置');
+  // 網路錯誤
+    throw new Error('網路連接失敗，請檢查網路設置');
   } else {
-    // 其他錯誤
-    return new Error(error.message || '未知錯誤');
+  // 其他錯誤
+    throw new Error(error.message || '未知錯誤');
   }
 }
 
@@ -291,7 +281,6 @@ export const retryRequest = async (requestFn, maxRetries = 3, delay = 1000) => {
       if (i === maxRetries - 1) {
         throw error;
       }
-      
       // 等待後重試
       await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
     }
@@ -307,13 +296,13 @@ export const cachedRequest = async (key, requestFn, duration = CACHE_DURATION) =
   if (cached && Date.now() - cached.timestamp < duration) {
     return cached.data;
   }
-  
+
   const data = await requestFn();
   cache.set(key, {
     data,
     timestamp: Date.now(),
   });
-  
+
   return data;
 };
 

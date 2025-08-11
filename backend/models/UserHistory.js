@@ -7,64 +7,58 @@ const UserHistory = sequelize.define('UserHistory', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
-    primaryKey: true
+    primaryKey: true,
   },
   userId: {
     type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: User,
-      key: 'id'
-    }
+      key: 'id',
+    },
   },
   cardId: {
     type: DataTypes.UUID,
     allowNull: true,
     references: {
       model: Card,
-      key: 'id'
-    }
+      key: 'id',
+    },
   },
   actionType: {
     type: DataTypes.ENUM('recognition', 'prediction', 'check', 'collection_add', 'collection_remove'),
-    allowNull: false
+    allowNull: false,
   },
   actionData: {
     type: DataTypes.JSONB,
-    allowNull: true
+    allowNull: true,
   },
   result: {
     type: DataTypes.JSONB,
-    allowNull: true
+    allowNull: true,
   },
   confidence: {
     type: DataTypes.DECIMAL(5, 2),
-    allowNull: true
+    allowNull: true,
   },
   ipAddress: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   userAgent: {
     type: DataTypes.STRING,
-    allowNull: true
-  }
+    allowNull: true,
+  },
 }, {
   tableName: 'user_histories',
   indexes: [
     {
-      fields: ['userId']
+      fields: ['userId'],
     },
-    {
-      fields: ['actionType']
-    },
-    {
-      fields: ['createdAt']
-    },
-    {
-      fields: ['userId', 'createdAt']
-    }
-  ]
+    { fields: ['actionType'] },
+    { fields: ['createdAt'] },
+    { fields: ['userId', 'createdAt'] },
+  ],
 });
 
 // 關聯關係

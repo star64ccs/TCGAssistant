@@ -7,7 +7,7 @@ const errorHandler = (err, req, res, next) => {
     url: req.url,
     method: req.method,
     ip: req.ip,
-    userAgent: req.get('User-Agent')
+    userAgent: req.get('User-Agent'),
   });
 
   // Sequelize錯誤處理
@@ -19,9 +19,9 @@ const errorHandler = (err, req, res, next) => {
         message: '數據驗證失敗',
         details: err.errors.map(e => ({
           field: e.path,
-          message: e.message
-        }))
-      }
+          message: e.message,
+        })),
+      },
     });
   }
 
@@ -33,9 +33,9 @@ const errorHandler = (err, req, res, next) => {
         message: '數據已存在',
         details: err.errors.map(e => ({
           field: e.path,
-          message: e.message
-        }))
-      }
+          message: e.message,
+        })),
+      },
     });
   }
 
@@ -44,8 +44,8 @@ const errorHandler = (err, req, res, next) => {
       success: false,
       error: {
         code: 'FOREIGN_KEY_ERROR',
-        message: '關聯數據不存在'
-      }
+        message: '關聯數據不存在',
+      },
     });
   }
 
@@ -55,8 +55,8 @@ const errorHandler = (err, req, res, next) => {
       success: false,
       error: {
         code: 'TOKEN_EXPIRED',
-        message: '令牌已過期'
-      }
+        message: '令牌已過期',
+      },
     });
   }
 
@@ -65,8 +65,8 @@ const errorHandler = (err, req, res, next) => {
       success: false,
       error: {
         code: 'INVALID_TOKEN',
-        message: '無效的令牌'
-      }
+        message: '無效的令牌',
+      },
     });
   }
 
@@ -76,8 +76,8 @@ const errorHandler = (err, req, res, next) => {
       success: false,
       error: {
         code: err.code || 'CUSTOM_ERROR',
-        message: err.message
-      }
+        message: err.message,
+      },
     });
   }
 
@@ -89,8 +89,8 @@ const errorHandler = (err, req, res, next) => {
     success: false,
     error: {
       code: 'INTERNAL_ERROR',
-      message: process.env.NODE_ENV === 'production' ? '內部服務器錯誤' : message
-    }
+      message: process.env.NODE_ENV === 'production' ? '內部服務器錯誤' : message,
+    },
   });
 };
 

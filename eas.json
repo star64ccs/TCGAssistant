@@ -1,30 +1,31 @@
 {
   "cli": {
-    "version": ">= 5.9.1"
+    "version": ">= 0.60.0"
   },
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "gradleCommand": ":app:assembleDebug"
+      },
+      "ios": {
+        "buildConfiguration": "Debug"
       }
     },
     "preview": {
-      "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
       }
     },
     "production": {
-      "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
-      }
-    },
-    "local": {
-      "android": {
-        "buildType": "apk"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
       }
     }
   },

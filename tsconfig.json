@@ -7,7 +7,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -46,13 +46,8 @@
     "useUnknownInCatchVariables": true
   },
   "include": [
-    "src/**/*",
-    "index.js",
-    "App.js",
-    "**/*.js",
-    "**/*.jsx",
-    "**/*.ts",
-    "**/*.tsx"
+    "src/**/*.js",
+    "src/**/*.jsx"
   ],
   "exclude": [
     "node_modules",

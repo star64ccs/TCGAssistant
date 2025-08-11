@@ -2,39 +2,19 @@
 export * from './colors';
 export * from './typography';
 
-// 應用程式常數
-export const APP_CONFIG = {
-  NAME: 'TCG助手',
-  VERSION: '1.0.0',
-  BUILD_NUMBER: '1',
-  BUNDLE_ID: 'com.tcgassistant.app',
-  
-  // API 端點
-  API_BASE_URL: 'http://localhost:3000',
-  API_VERSION: 'v1',
-  
-  // 功能限制
-  FREE_DAILY_LIMIT: 5,
-  VIP_TRIAL_DAILY_LIMIT: 1,
-  VIP_TRIAL_DAYS: 7,
-  
-  // 圖片品質
-  IMAGE_QUALITY: 0.8,
-  MAX_IMAGE_SIZE: 10 * 1024 * 1024, // 10MB
-  
-  // 快取設定
-  CACHE_DURATION: 24 * 60 * 60 * 1000, // 24小時
-  
-  // 分享設定
-  SHARE_BASE_URL: 'https://tcgassistant.com/share',
-  
-  // 支援的卡牌類型
-  SUPPORTED_GAMES: ['pokemon', 'one-piece'],
-  
-  // 支援的語言
-  SUPPORTED_LANGUAGES: ['zh-TW', 'zh-CN', 'en', 'ja'],
-  DEFAULT_LANGUAGE: 'zh-TW',
-};
+// 應用程式常數 - 已遷移到統一配置管理系統
+// 請使用 src/config/unifiedConfig.js 中的配置
+
+import {
+  APP_CONFIG,
+  LIMITS,
+  IMAGE_CONFIG,
+  SUPPORTED,
+  SHARE_CONFIG,
+} from '../config/unifiedConfig';
+
+// 向後兼容的常數導出
+export { APP_CONFIG, LIMITS, IMAGE_CONFIG, SUPPORTED, SHARE_CONFIG };
 
 // 會員類型
 export const MEMBERSHIP_TYPES = {
@@ -199,7 +179,7 @@ export const ROUTES = {
   LOGIN: 'Login',
   REGISTER: 'Register',
   FORGOT_PASSWORD: 'ForgotPassword',
-  
+
   // 主要功能
   HOME: 'Home',
   CARD_RECOGNITION: 'CardRecognition',
@@ -208,42 +188,41 @@ export const ROUTES = {
   PRICE_PREDICTION: 'PricePrediction',
   ML_ANALYSIS: 'MLAnalysis',
   INVESTMENT_ADVICE: 'InvestmentAdvice',
-  
+
   // 結果頁面
   RECOGNITION_RESULT: 'RecognitionResult',
   CENTERING_RESULT: 'CenteringResult',
   AUTHENTICITY_RESULT: 'AuthenticityResult',
   PRICE_RESULT: 'PriceResult',
-  
+
   // 收藏與歷史
   COLLECTION: 'Collection',
   COLLECTION_FOLDER: 'CollectionFolder',
   SEARCH_HISTORY: 'SearchHistory',
   COLLECTION_DETAIL: 'CollectionDetail',
-  
+
   // AI助手
   AI_CHATBOT: 'AIChatbot',
-  
+
   // 會員相關
   MEMBERSHIP: 'Membership',
   PROFILE: 'Profile',
   EDIT_PROFILE: 'EditProfile',
   CHANGE_PASSWORD: 'ChangePassword',
   SETTINGS: 'Settings',
-  
+
   // 第二階段功能
   PRICE_TRACKING: 'PriceTracking',
   TRADING_MARKET: 'TradingMarket',
-
   NOTIFICATION_CENTER: 'NotificationCenter',
   CARD_RATING: 'CardRating',
   TRADING_HISTORY: 'TradingHistory',
   ANALYTICS_DASHBOARD: 'AnalyticsDashboard',
   DATA_EXPANSION: 'DataExpansion',
-  
+
   // 分享
   SHARE: 'Share',
-  
+
   // 其他
   ABOUT: 'About',
   PRIVACY_POLICY: 'PrivacyPolicy',
@@ -259,19 +238,19 @@ export const DISCLAIMER_TEXT = {
 本應用程式所提供之卡牌辨識、價格分析、真偽判斷及相關AI預測僅供參考，並不構成任何投資建議或保證。所有資料來源於第三方平台，準確性及即時性可能因平台更新而有所變動。
 
 使用者應自行判斷並承擔風險，本應用程式及其開發者不對任何因使用本程式所造成之損失負責。使用本程式即表示您已閱讀並同意本免責聲明。`,
-  
+
   'zh-CN': `免责声明
 
 本应用程序所提供的卡牌识别、价格分析、真伪判断及相关AI预测仅供参考，并不构成任何投资建议或保证。所有资料来源于第三方平台，准确性及即时性可能因平台更新而有所变动。
 
 使用者应自行判断并承担风险，本应用程序及其开发者不对任何因使用本程序所造成的损失负责。使用本程序即表示您已阅读并同意本免责声明。`,
-  
+
   'en': `Disclaimer
 
 The card recognition, price analysis, authenticity verification, and related AI predictions provided by this application are for reference only and do not constitute any investment advice or guarantee. All data comes from third-party platforms, and accuracy and timeliness may vary due to platform updates.
 
 Users should make their own judgments and bear the risks. This application and its developers are not responsible for any losses caused by using this program. Using this program indicates that you have read and agreed to this disclaimer.`,
-  
+
   'ja': `免責事項
 
 このアプリケーションが提供するカード認識、価格分析、真贋判定、および関連するAI予測は参考目的のみであり、投資助言や保証を構成するものではありません。すべてのデータは第三者プラットフォームから提供され、プラットフォームの更新により正確性と即時性が変動する可能性があります。

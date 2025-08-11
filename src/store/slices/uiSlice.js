@@ -1,5 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
-
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 // 初始狀態
 const initialState = {
   isLoading: false,
@@ -32,36 +31,27 @@ const initialState = {
 };
 
 // 建立 slice
-const uiSlice = createSlice({
+const uiSlice = createSlice || (() => {})({
   name: 'ui',
   initialState,
   reducers: {
     // 載入狀態
-    setLoading: (state, action) => {
-      state.isLoading = action.payload.isLoading;
-      state.loadingText = action.payload.text || '';
-    },
-    
-    // 模態框
+    setLoading: (state, action) => {      state.isLoading = action.payload.isLoading;      state.loadingText = action.payload.text || '';
+    },    // 模態框
     showModal: (state, action) => {
-      state.modal = {
-        visible: true,
+      state.modal = {        visible: true,
         type: action.payload.type,
         data: action.payload.data || null,
       };
     },
     hideModal: (state) => {
-      state.modal = {
-        visible: false,
+      state.modal = {        visible: false,
         type: null,
         data: null,
       };
-    },
-    
-    // Toast 通知
+    },    // Toast 通知
     showToast: (state, action) => {
-      state.toast = {
-        visible: true,
+      state.toast = {        visible: true,
         type: action.payload.type || 'info',
         message: action.payload.message,
         duration: action.payload.duration || 3000,
@@ -69,56 +59,37 @@ const uiSlice = createSlice({
     },
     hideToast: (state) => {
       state.toast.visible = false;
-    },
-    
-    // 底部彈出層
+    },    // 底部彈出層
     showBottomSheet: (state, action) => {
-      state.bottomSheet = {
-        visible: true,
+      state.bottomSheet = {        visible: true,
         type: action.payload.type,
         data: action.payload.data || null,
       };
     },
     hideBottomSheet: (state) => {
-      state.bottomSheet = {
-        visible: false,
+      state.bottomSheet = {        visible: false,
         type: null,
         data: null,
       };
-    },
-    
-    // 網路狀態
+    },    // 網路狀態
     updateNetworkStatus: (state, action) => {
-      state.networkStatus = {
-        ...state.networkStatus,
-        ...action.payload,
+      state.networkStatus = {        ...state.networkStatus,        ...action.payload,
       };
-    },
-    
-    // 權限狀態
+    },    // 權限狀態
     updatePermissions: (state, action) => {
-      state.permissions = {
-        ...state.permissions,
-        ...action.payload,
+      state.permissions = {        ...state.permissions,        ...action.payload,
       };
-    },
-    
-    // 重置 UI 狀態
+    },    // 重置 UI 狀態
     resetUI: (state) => {
-      state.isLoading = false;
-      state.loadingText = '';
-      state.modal = {
-        visible: false,
+      state.isLoading = false;      state.loadingText = '';      state.modal = {        visible: false,
         type: null,
         data: null,
-      };
-      state.toast = {
+      };      state.toast = {
         visible: false,
         type: 'info',
         message: '',
         duration: 3000,
-      };
-      state.bottomSheet = {
+      };      state.bottomSheet = {
         visible: false,
         type: null,
         data: null,

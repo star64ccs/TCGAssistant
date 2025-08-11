@@ -9,12 +9,14 @@ const setupBackend = async () => {
 
     // 檢查Node.js版本
     const nodeVersion = process.version;
-    logger.info(`Node.js版本: ${nodeVersion}`);
+    logger.info(`Node.js版本: ${nodeVersion
+    }`);
 
     // 檢查是否已安裝依賴
     if (!fs.existsSync(path.join(__dirname, '../node_modules'))) {
       logger.info('📦 安裝依賴包...');
-      execSync('npm install', { stdio: 'inherit' });
+      execSync('npm install', { stdio: 'inherit',
+      });
     } else {
       logger.info('✅ 依賴包已安裝');
     }
@@ -40,7 +42,8 @@ const setupBackend = async () => {
     logger.info('🔍 檢查數據庫連接...');
     try {
       require('dotenv').config();
-      const { testConnection } = require('../config/database');
+      const { testConnection,
+      } = require('../config/database');
       await testConnection();
       logger.info('✅ 數據庫連接成功');
     } catch (error) {
@@ -73,7 +76,6 @@ const setupBackend = async () => {
     logger.info('');
     logger.info('🔗 API文檔: http://localhost:3000/health');
     logger.info('📚 詳細文檔請查看 README.md');
-
   } catch (error) {
     logger.error('❌ 設置失敗:', error);
     process.exit(1);

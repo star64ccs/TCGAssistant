@@ -1,102 +1,86 @@
-const { getDefaultConfig } = require('@react-native/metro-config');
+const { getDefaultConfig } = require('@expo/metro-config');
+
+const defaultConfig = getDefaultConfig(__dirname);
 
 /**
  * Metro configuration for React Native
  * https://facebook.github.io/metro/docs/configuration
  *
- * @type {import('metro-config').MetroConfig}
+ * @type { import('metro-config').MetroConfig }
  */
 const config = {
-  ...getDefaultConfig(__dirname),
-  
-  // 優化解析器配置
+  ...defaultConfig,
+
   resolver: {
-    ...getDefaultConfig(__dirname).resolver,
-    
-    // 支持的文件擴展名
-    sourceExts: [
-      'js',
-      'jsx',
-      'json',
-      'ts',
-      'tsx',
-      'cjs',
-      'mjs',
-    ],
-    
-    // 資產文件擴展名
+    ...defaultConfig.resolver,
+    sourceExts: ['js', 'jsx', 'json', 'ts', 'tsx', 'cjs', 'mjs'],
     assetExts: [
-      'png',
-      'jpg',
-      'jpeg',
-      'gif',
-      'webp',
-      'svg',
-      'mp4',
-      'mp3',
-      'wav',
-      'ttf',
-      'otf',
-      'woff',
-      'woff2',
+      'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg',
+      'mp4', 'mp3', 'wav', 'ttf', 'otf', 'woff', 'woff2',
     ],
-    
-    // 解析器插件
     resolverMainFields: ['react-native', 'browser', 'main'],
-    
-    // 別名配置
+    platforms: ['ios', 'android', 'native', 'web'],
+    // 添加解析器優化
+    unstable_enableSymlinks: false,
+    unstable_enablePackageExports: true,
+    // 添加模塊解析優化
     alias: {
-      '@components': './src/components',
-      '@screens': './src/screens',
-      '@services': './src/services',
-      '@utils': './src/utils',
-      '@constants': './src/constants',
-      '@store': './src/store',
-      '@navigation': './src/navigation',
-      '@i18n': './src/i18n',
-      '@assets': './assets',
+      '@': __dirname + '/src',
+      '@components': __dirname + '/src/components',
+      '@screens': __dirname + '/src/screens',
+      '@services': __dirname + '/src/services',
+      '@utils': __dirname + '/src/utils',
+      '@constants': __dirname + '/src/constants',
+      '@store': __dirname + '/src/store',
     },
   },
-  
-  // 轉換器配置
+
   transformer: {
-    ...getDefaultConfig(__dirname).transformer,
-    
-    // Babel 配置
+    ...defaultConfig.transformer,
     babelTransformerPath: require.resolve('react-native-svg-transformer'),
-    
-    // 支持 SVG 轉換
     assetPlugins: ['react-native-svg-asset-plugin'],
-    
-    // 優化配置
+    enableBabelRCLookup: false,
+    enableHermes: true,
+    // 添加轉換器優化
     minifierConfig: {
-      keep_fnames: true,
       mangle: {
         keep_fnames: true,
       },
-    },
-  },
-  
-  // 監視器配置
-  watchFolders: [
-    // 監視額外的文件夾
-    './src',
-    './assets',
-  ],
-  
-  // 快取配置
-  cacheStores: [
-    {
-      name: 'metro-cache',
-      type: 'file',
-      options: {
-        maxAge: 24 * 60 * 60 * 1000, // 24小時
-        maxSize: 100 * 1024 * 1024, // 100MB
+      output: {
+        ascii_only: true,
+        quote_style: 3,
+        wrap_iife: true,
+      },
+      sourceMap: {
+        includeSources: false,
+      },
+      toplevel: false,
+      compress: {
+        reduce_funcs: false,
       },
     },
+    // 添加代碼分割優化
+    experimentalImportSupport: false,
+    inlineRequires: true,
+  },
+
+  watchFolders: ['./src', './assets'],
+
+  // 優化緩存配置
+  cacheStores: [
+    {
+      name: 'memory',
+      type: 'memory',
+      maxSize: 100 * 1024 * 1024, // 100MB
+    },
+    {
+      name: 'file',
+      type: 'file',
+      maxSize: 500 * 1024 * 1024, // 500MB
+    },
   ],
-  
-  // 服務器配置
+
+  // 添加服務器配置優化
   server: {
     port: 8081,
     enhanceMiddleware: (middleware, server) => {
@@ -105,15 +89,29 @@ const config = {
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        
+
+        // 添加緩存控制
+        if (req.url.includes('.bundle')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000');
+        }
+
         return middleware(req, res, next);
       };
     },
   },
-  
-  // 優化配置
+
+  // 添加打包優化
   maxWorkers: 4,
   resetCache: false,
+
+  // 添加監控配置
+  reporter: {
+    update: (event) => {
+      if (event.type === 'bundle_build_done') {
+        console.log(`Bundle built in ${event.duration}ms`);
+      }
+    },
+  },
 };
 
 module.exports = config;

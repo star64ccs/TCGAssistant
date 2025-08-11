@@ -16,7 +16,8 @@ class BackupService {
   // 確保備份目錄存在
   async ensureBackupDirectory() {
     try {
-      await fs.mkdir(this.backupDir, { recursive: true });
+      await fs.mkdir(this.backupDir, { recursive: true,
+      });
     } catch (error) {
       logger.error('創建備份目錄失敗:', error);
     }
@@ -30,23 +31,23 @@ class BackupService {
         description = '',
         includeSettings = true,
         includeHistory = true,
-        includeCollection = true
+        includeCollection = true,
       } = options;
 
       const backupId = uuidv4();
       const timestamp = new Date();
-      
+
       // 收集用戶數據
       const userData = await this.collectUserData(userId, {
         includeSettings,
         includeHistory,
-        includeCollection
+        includeCollection,
       });
 
       // 創建備份文件
-      const backupFileName = `backup_${userId}_${backupId}_${timestamp.getTime()}.zip`;
+      const backupFileName = `backup_${ userId }_${ backupId }_${ timestamp.getTime() }.zip`;
       const backupFilePath = path.join(this.backupDir, backupFileName);
-      
+
       await this.createBackupFile(backupFilePath, userData);
 
       // 記錄備份信息
@@ -61,17 +62,17 @@ class BackupService {
         dataIncluded: {
           settings: includeSettings,
           history: includeHistory,
-          collection: includeCollection
+          collection: includeCollection,
         },
         status: 'completed',
         createdAt: timestamp,
         updatedAt: timestamp,
-        checksum: await this.calculateChecksum(backupFilePath)
+        checksum: await this.calculateChecksum(backupFilePath),
       };
 
       this.backups.set(backupId, backup);
-      
-      logger.info(`備份已創建: ${backupId} 用戶 ${userId}`);
+
+      logger.info(`備份已創建: ${ backupId } 用戶 ${ userId }`);
       return backup;
     } catch (error) {
       logger.error('創建備份錯誤:', error);
@@ -80,10 +81,11 @@ class BackupService {
   }
 
   // 獲取備份列表
-  async getBackupList(userId, options = {}) {
+  getBackupList(userId, options = {}) {
     try {
-      const { page = 1, limit = 20, type, status } = options;
-      
+      const { page = 1, limit = 20, type, status,
+      } = options;
+
       let backups = Array.from(this.backups.values())
         .filter(b => b.userId === userId);
 
@@ -109,8 +111,8 @@ class BackupService {
           page,
           limit,
           total: backups.length,
-          totalPages: Math.ceil(backups.length / limit)
-        }
+          totalPages: Math.ceil(backups.length / limit),
+        },
       };
     } catch (error) {
       logger.error('獲取備份列表錯誤:', error);
@@ -119,7 +121,7 @@ class BackupService {
   }
 
   // 獲取備份詳情
-  async getBackupDetail(backupId, userId) {
+  getBackupDetail(backupId, userId) {
     try {
       const backup = this.backups.get(backupId);
       if (!backup || backup.userId !== userId) {
@@ -142,12 +144,12 @@ class BackupService {
       }
 
       const fileBuffer = await fs.readFile(backup.filePath);
-      
+
       return {
         buffer: fileBuffer,
         filename: backup.fileName,
         mimeType: 'application/zip',
-        size: backup.fileSize
+        size: backup.fileSize,
       };
     } catch (error) {
       logger.error('下載備份錯誤:', error);
@@ -167,23 +169,21 @@ class BackupService {
 
       // 讀取備份數據
       const backupData = await this.extractBackupData(backup.filePath);
-      
+
       // 恢復數據
-      const restoreResult = await this.restoreUserData(userId, backupData, {
-        conflictResolution
-      });
+      const restoreResult = await this.restoreUserData(userId, backupData, { conflictResolution });
 
       // 更新備份狀態
       backup.lastRestored = new Date();
       backup.restoreCount = (backup.restoreCount || 0) + 1;
       this.backups.set(backupId, backup);
 
-      logger.info(`備份已恢復: ${backupId} 用戶 ${userId}`);
+      logger.info(`備份已恢復: ${ backupId } 用戶 ${ userId }`);
       return {
         success: true,
         backupId,
         restoredData: restoreResult,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } catch (error) {
       logger.error('恢復備份錯誤:', error);
@@ -203,13 +203,13 @@ class BackupService {
       try {
         await fs.unlink(backup.filePath);
       } catch (fileError) {
-        logger.warn(`刪除備份文件失敗: ${backup.filePath}`, fileError);
+        logger.warn(`刪除備份文件失敗: ${backup.filePath }`, fileError);
       }
 
       // 刪除記錄
       this.backups.delete(backupId);
-      
-      logger.info(`備份已刪除: ${backupId}`);
+
+      logger.info(`備份已刪除: ${ backupId }`);
       return { success: true };
     } catch (error) {
       logger.error('刪除備份錯誤:', error);
@@ -222,11 +222,12 @@ class BackupService {
     try {
       const backupId = uuidv4();
       const timestamp = new Date();
-      
+
       // 保存上傳的文件
-      const backupFileName = `uploaded_backup_${userId}_${backupId}_${timestamp.getTime()}.zip`;
+      const backupFileName = `uploaded_backup_${userId
+      }_${ backupId }_${ timestamp.getTime() }.zip`;
       const backupFilePath = path.join(this.backupDir, backupFileName);
-      
+
       await fs.writeFile(backupFilePath, Buffer.from(backupData, 'base64'));
 
       // 驗證備份文件
@@ -248,18 +249,18 @@ class BackupService {
         dataIncluded: {
           settings: true,
           history: true,
-          collection: true
+          collection: true,
         },
         status: 'completed',
         createdAt: timestamp,
         updatedAt: timestamp,
         checksum: await this.calculateChecksum(backupFilePath),
-        source: 'uploaded'
+        source: 'uploaded',
       };
 
       this.backups.set(backupId, backup);
-      
-      logger.info(`備份已上傳: ${backupId} 用戶 ${userId}`);
+
+      logger.info(`備份已上傳: ${ backupId } 用戶 ${ userId }`);
       return backup;
     } catch (error) {
       logger.error('上傳備份錯誤:', error);
@@ -277,7 +278,7 @@ class BackupService {
 
       const currentChecksum = await this.calculateChecksum(backup.filePath);
       const isIntact = currentChecksum === backup.checksum;
-      
+
       const verificationResult = {
         backupId,
         isIntact,
@@ -285,7 +286,7 @@ class BackupService {
         currentChecksum,
         fileExists: await this.fileExists(backup.filePath),
         fileSize: await this.getFileSize(backup.filePath),
-        verifiedAt: new Date()
+        verifiedAt: new Date(),
       };
 
       return verificationResult;
@@ -296,7 +297,7 @@ class BackupService {
   }
 
   // 獲取備份統計
-  async getBackupStats(userId) {
+  getBackupStats(userId) {
     try {
       const backups = Array.from(this.backups.values())
         .filter(b => b.userId === userId);
@@ -306,16 +307,16 @@ class BackupService {
         byType: {
           full: backups.filter(b => b.type === 'full').length,
           partial: backups.filter(b => b.type === 'partial').length,
-          incremental: backups.filter(b => b.type === 'incremental').length
+          incremental: backups.filter(b => b.type === 'incremental').length,
         },
         byStatus: {
           completed: backups.filter(b => b.status === 'completed').length,
           failed: backups.filter(b => b.status === 'failed').length,
-          inProgress: backups.filter(b => b.status === 'in_progress').length
+          inProgress: backups.filter(b => b.status === 'in_progress').length,
         },
         totalSize: backups.reduce((sum, b) => sum + (b.fileSize || 0), 0),
         lastBackup: backups.length > 0 ? Math.max(...backups.map(b => new Date(b.createdAt))) : null,
-        averageSize: backups.length > 0 ? backups.reduce((sum, b) => sum + (b.fileSize || 0), 0) / backups.length : 0
+        averageSize: backups.length > 0 ? backups.reduce((sum, b) => sum + (b.fileSize || 0), 0) / backups.length : 0,
       };
 
       return stats;
@@ -329,11 +330,12 @@ class BackupService {
   async setAutoBackupSettings(userId, settings) {
     try {
       const currentSettings = await this.getAutoBackupSettings(userId);
-      const updatedSettings = { ...currentSettings, ...settings, updatedAt: new Date() };
-      
+      const updatedSettings = { ...currentSettings, ...settings, updatedAt: new Date(),
+      };
+
       this.autoBackupSettings.set(userId, updatedSettings);
-      
-      logger.info(`自動備份設置已更新: ${userId}`);
+
+      logger.info(`自動備份設置已更新: ${ userId }`);
       return updatedSettings;
     } catch (error) {
       logger.error('設置自動備份錯誤:', error);
@@ -342,7 +344,7 @@ class BackupService {
   }
 
   // 獲取自動備份設置
-  async getAutoBackupSettings(userId) {
+  getAutoBackupSettings(userId) {
     try {
       const settings = this.autoBackupSettings.get(userId);
       if (!settings) {
@@ -357,13 +359,13 @@ class BackupService {
           lastBackup: null,
           nextBackup: null,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
-        
+
         this.autoBackupSettings.set(userId, defaultSettings);
         return defaultSettings;
       }
-      
+
       return settings;
     } catch (error) {
       logger.error('獲取自動備份設置錯誤:', error);
@@ -384,7 +386,7 @@ class BackupService {
         description: '自動備份',
         includeSettings: settings.includeSettings,
         includeHistory: settings.includeHistory,
-        includeCollection: settings.includeCollection
+        includeCollection: settings.includeCollection,
       });
 
       // 更新設置
@@ -403,7 +405,7 @@ class BackupService {
   async batchAction(backupIds, action, data, userId) {
     try {
       const results = [];
-      
+
       for (const backupId of backupIds) {
         try {
           let result;
@@ -418,7 +420,8 @@ class BackupService {
               result = await this.verifyBackup(backupId, userId);
               break;
             default:
-              throw new Error(`不支持的操作: ${action}`);
+              throw new Error(`不支持的操作: ${action
+              }`);
           }
           results.push({ success: true, backupId, result });
         } catch (error) {
@@ -432,8 +435,8 @@ class BackupService {
         summary: {
           total: backupIds.length,
           successful: results.filter(r => r.success).length,
-          failed: results.filter(r => !r.success).length
-        }
+          failed: results.filter(r => !r.success).length,
+        },
       };
     } catch (error) {
       logger.error('批量操作備份錯誤:', error);
@@ -442,35 +445,38 @@ class BackupService {
   }
 
   // 收集用戶數據
-  async collectUserData(userId, options) {
-    // 這裡應該從實際的數據庫收集數據
+  collectUserData(userId, options) {
+    // 從數據庫收集數據
     // 目前使用模擬數據
     const userData = {
       userId,
       timestamp: new Date(),
       version: '1.0.0',
-      data: {}
+      data: {
+      },
     };
 
     if (options.includeSettings) {
       userData.data.settings = {
         language: 'zh-TW',
         theme: 'dark',
-        notifications: true
+        notifications: true,
       };
     }
 
     if (options.includeHistory) {
       userData.data.history = [
-        { action: 'card_recognition', timestamp: new Date() },
-        { action: 'price_check', timestamp: new Date() }
+        { action: 'card_recognition', timestamp: new Date(),
+        },
+        { action: 'price_check', timestamp: new Date() },
       ];
     }
 
     if (options.includeCollection) {
       userData.data.collection = [
-        { cardId: 'card1', addedAt: new Date() },
-        { cardId: 'card2', addedAt: new Date() }
+        { cardId: 'card1', addedAt: new Date(),
+        },
+        { cardId: 'card2', addedAt: new Date() },
       ];
     }
 
@@ -478,10 +484,11 @@ class BackupService {
   }
 
   // 創建備份文件
-  async createBackupFile(filePath, data) {
+  createBackupFile(filePath, data) {
     return new Promise((resolve, reject) => {
       const output = fs.createWriteStream(filePath);
-      const archive = archiver('zip', { zlib: { level: 9 } });
+      const archive = archiver('zip', { zlib: { level: 9,
+      } });
 
       output.on('close', () => resolve());
       archive.on('error', (err) => reject(err));
@@ -493,33 +500,34 @@ class BackupService {
   }
 
   // 提取備份數據
-  async extractBackupData(filePath) {
-    // 這裡應該實際解壓縮文件並解析數據
+  extractBackupData(filePath) {
+    // 解壓縮文件並解析數據
     // 目前返回模擬數據
     return {
       userId: 'user123',
       timestamp: new Date(),
       version: '1.0.0',
       data: {
-        settings: {},
+        settings: {
+        },
         history: [],
-        collection: []
-      }
+        collection: [],
+      },
     };
   }
 
   // 恢復用戶數據
-  async restoreUserData(userId, backupData, options) {
-    // 這裡應該實際恢復數據到數據庫
+  restoreUserData(userId, backupData, options) {
+    // 恢復數據到數據庫
     // 目前返回模擬結果
     return {
       restoredItems: {
         settings: 1,
         history: 10,
-        collection: 5
+        collection: 5,
       },
       conflicts: [],
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -534,10 +542,11 @@ class BackupService {
   }
 
   // 計算文件校驗和
-  async calculateChecksum(filePath) {
-    // 這裡應該實際計算文件的MD5或SHA256校驗和
+  calculateChecksum(filePath) {
+    // 計算文件的MD5或SHA256校驗和
     // 目前返回模擬值
-    return `checksum_${Date.now()}`;
+    return `checksum_${Date.now()
+    }`;
   }
 
   // 檢查文件是否存在
@@ -551,8 +560,8 @@ class BackupService {
   }
 
   // 驗證備份文件
-  async validateBackupFile(filePath) {
-    // 這裡應該實際驗證備份文件的完整性
+  validateBackupFile(filePath) {
+    // 驗證備份文件的完整性
     // 目前返回true
     return true;
   }

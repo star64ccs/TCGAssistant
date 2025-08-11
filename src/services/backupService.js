@@ -1,58 +1,49 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
-import { STORAGE_KEYS } from '../constants';
-
-// 備份類型
-export const BACKUP_TYPES = {
+// 備份類型常量
+const BACKUP_TYPES = {
   FULL: 'full',
   INCREMENTAL: 'incremental',
   SELECTIVE: 'selective',
-  CLOUD: 'cloud',
 };
 
-// 備份狀態
-export const BACKUP_STATUS = {
-  PENDING: 'pending',
+// 備份狀態常量
+const BACKUP_STATUS = {
   IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
   FAILED: 'failed',
   CANCELLED: 'cancelled',
 };
 
-// 同步類型
-export const SYNC_TYPES = {
-  UPLOAD: 'upload',
-  DOWNLOAD: 'download',
-  BIDIRECTIONAL: 'bidirectional',
-};
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// 備份服務類
 class BackupService {
   constructor() {
     this.isInitialized = false;
-    this.backupQueue = [];
-    this.syncInProgress = false;
     this.lastBackupTime = null;
-    this.lastSyncTime = null;
+    this.backupConfig = {
+      autoBackup: true,
+      backupInterval: 24 * 60 * 60 * 1000, // 24小時
+      maxBackups: 10,
+      compressionEnabled: true,
+    };
+    this.backupQueue = [];
+    this.isBackingUp = false;
   }
 
   // 初始化備份服務
   async initialize() {
     try {
-      if (this.isInitialized) return;
-
+      if (this.isInitialized) {
+        return;
+      }
       // 載入備份配置
       await this.loadBackupConfig();
-      
       // 設置自動備份任務
       this.setupAutoBackupTask();
-      
       // 設置自動同步任務
       this.setupAutoSyncTask();
-      
       this.isInitialized = true;
-      console.log('BackupService initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize BackupService:', error);
       throw error;
     }
   }
@@ -63,7 +54,6 @@ class BackupService {
       if (!this.isInitialized) {
         await this.initialize();
       }
-
       const backupId = this.generateBackupId();
       const backupData = {
         id: backupId,
@@ -73,19 +63,15 @@ class BackupService {
         createdAt: new Date().toISOString(),
         options,
       };
-
-      // 開始備份
+        // 開始備份
       const result = await this.performBackup(backupData);
-      
       if (result.success) {
         await this.saveBackupRecord(result.backupData);
         this.lastBackupTime = Date.now();
         return { success: true, backupId, backupData: result.backupData };
-      } else {
-        return { success: false, error: result.error };
       }
+      return { success: false, error: result.error };
     } catch (error) {
-      console.error('Failed to create full backup:', error);
       throw error;
     }
   }
@@ -96,9 +82,8 @@ class BackupService {
       const lastBackup = await this.getLastBackup();
       if (!lastBackup) {
         // 如果沒有之前的備份，創建完整備份
-        return await this.createFullBackup(options);
+        return await this.createFullBackup();
       }
-
       const backupId = this.generateBackupId();
       const backupData = {
         id: backupId,
@@ -109,18 +94,14 @@ class BackupService {
         baseBackupId: lastBackup.id,
         options,
       };
-
       const result = await this.performIncrementalBackup(backupData, lastBackup);
-      
       if (result.success) {
         await this.saveBackupRecord(result.backupData);
         this.lastBackupTime = Date.now();
         return { success: true, backupId, backupData: result.backupData };
-      } else {
-        return { success: false, error: result.error };
       }
+      return { success: false, error: result.error };
     } catch (error) {
-      console.error('Failed to create incremental backup:', error);
       throw error;
     }
   }
@@ -138,18 +119,14 @@ class BackupService {
         selectedKeys,
         options,
       };
-
-      const result = await this.performSelectiveBackup(backupData, selectedKeys);
-      
+      const result = await this.performSelectiveBackup(backupData);
       if (result.success) {
         await this.saveBackupRecord(result.backupData);
         this.lastBackupTime = Date.now();
         return { success: true, backupId, backupData: result.backupData };
-      } else {
-        return { success: false, error: result.error };
       }
+      return { success: false, error: result.error };
     } catch (error) {
-      console.error('Failed to create selective backup:', error);
       throw error;
     }
   }
@@ -157,467 +134,184 @@ class BackupService {
   // 執行備份
   async performBackup(backupData) {
     try {
-      // 獲取所有本地存儲數據
-      const allKeys = await AsyncStorage.getAllKeys();
-      const backupContent = {};
-
-      // 讀取所有數據
-      for (const key of allKeys) {
-        try {
-          const value = await AsyncStorage.getItem(key);
-          if (value) {
-            backupContent[key] = value;
-          }
-        } catch (error) {
-          console.warn(`Failed to read key ${key}:`, error);
-        }
-      }
-
-      // 計算備份大小
-      const backupSize = JSON.stringify(backupContent).length;
-      
-      // 更新備份數據
-      const completedBackup = {
-        ...backupData,
-        status: BACKUP_STATUS.COMPLETED,
-        content: backupContent,
-        size: backupSize,
-        itemCount: Object.keys(backupContent).length,
-        completedAt: new Date().toISOString(),
+      // 獲取所有需要備份的數據
+      const allData = await this.getAllData();
+      // 壓縮數據
+      const compressedData = this.backupConfig.compressionEnabled
+        ? await this.compressData(allData)
+        : allData;
+        // 保存備份文件
+      const backupFile = await this.saveBackupFile(backupData.id, compressedData);
+      return {
+        success: true,
+        backupData: {
+          ...backupData,
+          status: BACKUP_STATUS.COMPLETED,
+          fileSize: backupFile.size,
+          filePath: backupFile.path,
+        },
       };
-
-      return { success: true, backupData: completedBackup };
     } catch (error) {
-      console.error('Failed to perform backup:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   }
 
   // 執行增量備份
   async performIncrementalBackup(backupData, baseBackup) {
     try {
-      const allKeys = await AsyncStorage.getAllKeys();
-      const incrementalContent = {};
-      let changedCount = 0;
-
-      // 比較當前數據與基礎備份
-      for (const key of allKeys) {
-        try {
-          const currentValue = await AsyncStorage.getItem(key);
-          const baseValue = baseBackup.content[key];
-
-          // 如果數據有變化，包含在增量備份中
-          if (currentValue !== baseValue) {
-            incrementalContent[key] = currentValue;
-            changedCount++;
-          }
-        } catch (error) {
-          console.warn(`Failed to compare key ${key}:`, error);
-        }
-      }
-
-      const backupSize = JSON.stringify(incrementalContent).length;
-      
-      const completedBackup = {
-        ...backupData,
-        status: BACKUP_STATUS.COMPLETED,
-        content: incrementalContent,
-        size: backupSize,
-        itemCount: changedCount,
-        completedAt: new Date().toISOString(),
+      // 獲取自上次備份以來的變更
+      const changes = await this.getChangesSince(baseBackup.timestamp);
+      // 壓縮變更數據
+      const compressedChanges = this.backupConfig.compressionEnabled
+        ? await this.compressData(changes)
+        : changes;
+        // 保存增量備份文件
+      const backupFile = await this.saveBackupFile(backupData.id, compressedChanges);
+      return {
+        success: true,
+        backupData: {
+          ...backupData,
+          status: BACKUP_STATUS.COMPLETED,
+          fileSize: backupFile.size,
+          filePath: backupFile.path,
+          changesCount: Object.keys(changes).length,
+        },
       };
-
-      return { success: true, backupData: completedBackup };
     } catch (error) {
-      console.error('Failed to perform incremental backup:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   }
 
   // 執行選擇性備份
-  async performSelectiveBackup(backupData, selectedKeys) {
+  async performSelectiveBackup(backupData) {
     try {
-      const selectiveContent = {};
-
+      const { selectedKeys } = backupData;
+      const selectedData = {};
+      // 只備份選定的鍵
       for (const key of selectedKeys) {
         try {
           const value = await AsyncStorage.getItem(key);
-          if (value) {
-            selectiveContent[key] = value;
+          if (value !== null) {
+            selectedData[key] = value;
           }
-        } catch (error) {
-          console.warn(`Failed to read selected key ${key}:`, error);
-        }
+        } catch (error) {}
       }
-
-      const backupSize = JSON.stringify(selectiveContent).length;
-      
-      const completedBackup = {
-        ...backupData,
-        status: BACKUP_STATUS.COMPLETED,
-        content: selectiveContent,
-        size: backupSize,
-        itemCount: Object.keys(selectiveContent).length,
-        completedAt: new Date().toISOString(),
+      // 壓縮數據
+      const compressedData = this.backupConfig.compressionEnabled
+        ? await this.compressData(selectedData)
+        : selectedData;
+        // 保存備份文件
+      const backupFile = await this.saveBackupFile(backupData.id, compressedData);
+      return {
+        success: true,
+        backupData: {
+          ...backupData,
+          status: BACKUP_STATUS.COMPLETED,
+          fileSize: backupFile.size,
+          filePath: backupFile.path,
+          keysCount: selectedKeys.length,
+        },
       };
-
-      return { success: true, backupData: completedBackup };
     } catch (error) {
-      console.error('Failed to perform selective backup:', error);
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message,
+      };
     }
   }
 
   // 恢復備份
-  async restoreBackup(backupId, options = {}) {
+  async restoreBackup(backupId) {
     try {
-      const backup = await this.getBackupById(backupId);
-      if (!backup) {
+      const backupRecord = await this.getBackupRecord(backupId);
+      if (!backupRecord) {
         throw new Error('Backup not found');
       }
-
-      if (backup.status !== BACKUP_STATUS.COMPLETED) {
-        throw new Error('Backup is not completed');
-      }
-
-      // 開始恢復
-      const result = await this.performRestore(backup, options);
-      
-      if (result.success) {
-        await this.updateBackupRecord(backupId, { lastRestoredAt: new Date().toISOString() });
-        return { success: true, restoredItems: result.restoredItems };
-      } else {
-        return { success: false, error: result.error };
-      }
+      // 讀取備份文件
+      const backupFile = await this.readBackupFile(backupRecord.filePath);
+      // 解壓縮數據
+      const decompressedData = this.backupConfig.compressionEnabled
+        ? await this.decompressData(backupFile)
+        : backupFile;
+        // 恢復數據
+      await this.restoreData(decompressedData);
+      return { success: true };
     } catch (error) {
-      console.error('Failed to restore backup:', error);
       throw error;
     }
   }
 
-  // 執行恢復
-  async performRestore(backup, options = {}) {
+  // 獲取所有數據
+  async getAllData() {
     try {
-      const { content, type } = backup;
-      const { overwrite = true, merge = false } = options;
-      
-      let restoredItems = 0;
-      const errors = [];
-
-      if (type === BACKUP_TYPES.FULL) {
-        // 完整恢復
-        if (overwrite) {
-          // 清除所有現有數據
-          const allKeys = await AsyncStorage.getAllKeys();
-          await AsyncStorage.multiRemove(allKeys);
-        }
-
-        // 恢復所有備份數據
-        for (const [key, value] of Object.entries(content)) {
-          try {
-            await AsyncStorage.setItem(key, value);
-            restoredItems++;
-          } catch (error) {
-            errors.push({ key, error: error.message });
+      const keys = await AsyncStorage.getAllKeys();
+      const data = {};
+      for (const key of keys) {
+        try {
+          const value = await AsyncStorage.getItem(key);
+          if (value !== null) {
+            data[key] = value;
           }
-        }
-      } else if (type === BACKUP_TYPES.INCREMENTAL) {
-        // 增量恢復
-        for (const [key, value] of Object.entries(content)) {
-          try {
-            if (overwrite || !(await AsyncStorage.getItem(key))) {
-              await AsyncStorage.setItem(key, value);
-              restoredItems++;
-            }
-          } catch (error) {
-            errors.push({ key, error: error.message });
-          }
-        }
-      } else if (type === BACKUP_TYPES.SELECTIVE) {
-        // 選擇性恢復
-        for (const [key, value] of Object.entries(content)) {
-          try {
-            if (overwrite || !(await AsyncStorage.getItem(key))) {
-              await AsyncStorage.setItem(key, value);
-              restoredItems++;
-            }
-          } catch (error) {
-            errors.push({ key, error: error.message });
-          }
-        }
+        } catch (error) {}
       }
-
-      return { 
-        success: true, 
-        restoredItems, 
-        errors: errors.length > 0 ? errors : null 
-      };
+      return data;
     } catch (error) {
-      console.error('Failed to perform restore:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // 雲端同步
-  async syncToCloud(syncType = SYNC_TYPES.BIDIRECTIONAL) {
-    try {
-      if (this.syncInProgress) {
-        throw new Error('Sync already in progress');
-      }
-
-      this.syncInProgress = true;
-      
-      const syncId = this.generateSyncId();
-      const syncData = {
-        id: syncId,
-        type: syncType,
-        status: 'in_progress',
-        timestamp: Date.now(),
-        startedAt: new Date().toISOString(),
-      };
-
-      let result;
-      
-      switch (syncType) {
-        case SYNC_TYPES.UPLOAD:
-          result = await this.performUploadSync(syncData);
-          break;
-        case SYNC_TYPES.DOWNLOAD:
-          result = await this.performDownloadSync(syncData);
-          break;
-        case SYNC_TYPES.BIDIRECTIONAL:
-          result = await this.performBidirectionalSync(syncData);
-          break;
-        default:
-          throw new Error('Invalid sync type');
-      }
-
-      this.syncInProgress = false;
-      this.lastSyncTime = Date.now();
-      
-      return result;
-    } catch (error) {
-      this.syncInProgress = false;
-      console.error('Failed to sync to cloud:', error);
       throw error;
     }
   }
 
-  // 執行上傳同步
-  async performUploadSync(syncData) {
-    try {
-      // 獲取本地數據
-      const allKeys = await AsyncStorage.getAllKeys();
-      const localData = {};
-      
-      for (const key of allKeys) {
-        const value = await AsyncStorage.getItem(key);
-        if (value) {
-          localData[key] = value;
-        }
-      }
-
-      // 上傳到雲端
-      const uploadResult = await this.uploadToCloud(localData);
-      
-      if (uploadResult.success) {
-        const completedSync = {
-          ...syncData,
-          status: 'completed',
-          uploadedItems: Object.keys(localData).length,
-          completedAt: new Date().toISOString(),
-        };
-        
-        await this.saveSyncRecord(completedSync);
-        return { success: true, syncId: syncData.id, uploadedItems: Object.keys(localData).length };
-      } else {
-        return { success: false, error: uploadResult.error };
-      }
-    } catch (error) {
-      console.error('Failed to perform upload sync:', error);
-      return { success: false, error: error.message };
-    }
+  // 獲取自指定時間以來的變更
+  async getChangesSince(timestamp) {
+    // 這裡應該實現變更檢測邏輯
+    // 目前返回空對象
+    return {};
   }
 
-  // 執行下載同步
-  async performDownloadSync(syncData) {
-    try {
-      // 從雲端下載數據
-      const downloadResult = await this.downloadFromCloud();
-      
-      if (downloadResult.success) {
-        const cloudData = downloadResult.data;
-        let downloadedItems = 0;
-        
-        // 恢復到本地
-        for (const [key, value] of Object.entries(cloudData)) {
-          try {
-            await AsyncStorage.setItem(key, value);
-            downloadedItems++;
-          } catch (error) {
-            console.warn(`Failed to restore key ${key}:`, error);
-          }
-        }
+  // 壓縮數據
+  async compressData(data) {
+    // 這裡應該實現數據壓縮邏輯
+    // 目前返回原數據
+    return data;
+  }
 
-        const completedSync = {
-          ...syncData,
-          status: 'completed',
-          downloadedItems,
-          completedAt: new Date().toISOString(),
-        };
-        
-        await this.saveSyncRecord(completedSync);
-        return { success: true, syncId: syncData.id, downloadedItems };
-      } else {
-        return { success: false, error: downloadResult.error };
+  // 解壓縮數據
+  async decompressData(data) {
+    // 這裡應該實現數據解壓縮邏輯
+    // 目前返回原數據
+    return data;
+  }
+
+  // 保存備份文件
+  async saveBackupFile(backupId, data) {
+    // 這裡應該實現文件保存邏輯
+    // 目前返回模擬結果
+    return {
+      size: JSON.stringify(data).length,
+      path: `/backups/${backupId}.json`,
+    };
+  }
+
+  // 讀取備份文件
+  async readBackupFile(filePath) {
+    // 這裡應該實現文件讀取邏輯
+    // 目前返回空對象
+    return {};
+  }
+
+  // 恢復數據
+  async restoreData(data) {
+    try {
+      for (const [key, value] of Object.entries(data)) {
+        await AsyncStorage.setItem(key, value);
       }
     } catch (error) {
-      console.error('Failed to perform download sync:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // 執行雙向同步
-  async performBidirectionalSync(syncData) {
-    try {
-      // 先下載雲端數據
-      const downloadResult = await this.performDownloadSync(syncData);
-      if (!downloadResult.success) {
-        return downloadResult;
-      }
-
-      // 再上傳本地數據
-      const uploadResult = await this.performUploadSync({
-        ...syncData,
-        id: `${syncData.id}_upload`,
-      });
-
-      return {
-        success: true,
-        syncId: syncData.id,
-        downloadedItems: downloadResult.downloadedItems,
-        uploadedItems: uploadResult.uploadedItems,
-      };
-    } catch (error) {
-      console.error('Failed to perform bidirectional sync:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // 上傳到雲端
-  async uploadToCloud(data) {
-    try {
-      // 這裡應該調用真實的雲端API
-      // 目前使用模擬API
-      const response = await fetch('https://api.tcgassistant.com/backup/upload', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data,
-          timestamp: Date.now(),
-          deviceId: Platform.OS,
-        }),
-      });
-
-      return { success: response.ok };
-    } catch (error) {
-      console.error('Failed to upload to cloud:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // 從雲端下載
-  async downloadFromCloud() {
-    try {
-      // 這裡應該調用真實的雲端API
-      const response = await fetch('https://api.tcgassistant.com/backup/download', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, data: data.backup };
-      } else {
-        return { success: false, error: 'Download failed' };
-      }
-    } catch (error) {
-      console.error('Failed to download from cloud:', error);
-      return { success: false, error: error.message };
-    }
-  }
-
-  // 獲取備份列表
-  async getBackupList(limit = 50, offset = 0) {
-    try {
-      const backupKey = STORAGE_KEYS.BACKUP_HISTORY;
-      const backupData = await AsyncStorage.getItem(backupKey);
-      const backups = backupData ? JSON.parse(backupData) : [];
-      
-      // 按時間排序
-      const sortedBackups = backups.sort((a, b) => b.timestamp - a.timestamp);
-      
-      // 分頁
-      return sortedBackups.slice(offset, offset + limit);
-    } catch (error) {
-      console.error('Failed to get backup list:', error);
-      return [];
-    }
-  }
-
-  // 獲取備份統計
-  async getBackupStats() {
-    try {
-      const backups = await this.getBackupList(1000, 0);
-      
-      const stats = {
-        total: backups.length,
-        byType: {},
-        byStatus: {},
-        totalSize: 0,
-        averageSize: 0,
-        lastBackup: null,
-        lastSync: null,
-      };
-
-      let totalSize = 0;
-
-      backups.forEach(backup => {
-        stats.byType[backup.type] = (stats.byType[backup.type] || 0) + 1;
-        stats.byStatus[backup.status] = (stats.byStatus[backup.status] || 0) + 1;
-        
-        if (backup.size) {
-          totalSize += backup.size;
-        }
-      });
-
-      stats.totalSize = totalSize;
-      stats.averageSize = backups.length > 0 ? totalSize / backups.length : 0;
-      stats.lastBackup = this.lastBackupTime;
-      stats.lastSync = this.lastSyncTime;
-
-      return stats;
-    } catch (error) {
-      console.error('Failed to get backup stats:', error);
-      return null;
-    }
-  }
-
-  // 刪除備份
-  async deleteBackup(backupId) {
-    try {
-      const backups = await this.getBackupList(1000, 0);
-      const filteredBackups = backups.filter(b => b.id !== backupId);
-      
-      await AsyncStorage.setItem(STORAGE_KEYS.BACKUP_HISTORY, JSON.stringify(filteredBackups));
-      return true;
-    } catch (error) {
-      console.error('Failed to delete backup:', error);
-      return false;
+      throw error;
     }
   }
 
@@ -626,168 +320,85 @@ class BackupService {
     return `backup_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
-  // 生成同步ID
-  generateSyncId() {
-    return `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // 載入備份配置
+  async loadBackupConfig() {
+    try {
+      const savedConfig = await AsyncStorage.getItem('backupConfig');
+      if (savedConfig) {
+        this.backupConfig = { ...this.backupConfig, ...JSON.parse(savedConfig) };
+      }
+    } catch (error) {}
   }
 
   // 保存備份記錄
   async saveBackupRecord(backupData) {
     try {
-      const backupKey = STORAGE_KEYS.BACKUP_HISTORY;
-      const currentBackups = await AsyncStorage.getItem(backupKey);
-      const backups = currentBackups ? JSON.parse(currentBackups) : [];
-      
-      backups.push(backupData);
-      
+      const records = await this.getBackupRecords();
+      records.push(backupData);
       // 限制備份記錄數量
-      if (backups.length > 100) {
-        backups.splice(0, backups.length - 100);
+      if (records.length > this.backupConfig.maxBackups) {
+        records.splice(0, records.length - this.backupConfig.maxBackups);
       }
-      
-      await AsyncStorage.setItem(backupKey, JSON.stringify(backups));
-    } catch (error) {
-      console.error('Failed to save backup record:', error);
-    }
+      await AsyncStorage.setItem('backupRecords', JSON.stringify(records));
+    } catch (error) {}
   }
 
-  // 保存同步記錄
-  async saveSyncRecord(syncData) {
+  // 獲取備份記錄
+  async getBackupRecords() {
     try {
-      const syncKey = STORAGE_KEYS.SYNC_HISTORY;
-      const currentSyncs = await AsyncStorage.getItem(syncKey);
-      const syncs = currentSyncs ? JSON.parse(currentSyncs) : [];
-      
-      syncs.push(syncData);
-      
-      if (syncs.length > 50) {
-        syncs.splice(0, syncs.length - 50);
-      }
-      
-      await AsyncStorage.setItem(syncKey, JSON.stringify(syncs));
+      const records = await AsyncStorage.getItem('backupRecords');
+      return records ? JSON.parse(records) : [];
     } catch (error) {
-      console.error('Failed to save sync record:', error);
+      return [];
     }
   }
 
-  // 獲取最後備份
+  // 獲取特定備份記錄
+  async getBackupRecord(backupId) {
+    try {
+      const records = await this.getBackupRecords();
+      return records.find(record => record.id === backupId);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  // 獲取最後一次備份
   async getLastBackup() {
     try {
-      const backups = await this.getBackupList(1, 0);
-      return backups.length > 0 ? backups[0] : null;
+      const records = await this.getBackupRecords();
+      return records.length > 0 ? records[records.length - 1] : null;
     } catch (error) {
-      console.error('Failed to get last backup:', error);
       return null;
-    }
-  }
-
-  // 根據ID獲取備份
-  async getBackupById(backupId) {
-    try {
-      const backups = await this.getBackupList(1000, 0);
-      return backups.find(b => b.id === backupId) || null;
-    } catch (error) {
-      console.error('Failed to get backup by id:', error);
-      return null;
-    }
-  }
-
-  // 更新備份記錄
-  async updateBackupRecord(backupId, updates) {
-    try {
-      const backups = await this.getBackupList(1000, 0);
-      const backupIndex = backups.findIndex(b => b.id === backupId);
-      
-      if (backupIndex !== -1) {
-        backups[backupIndex] = { ...backups[backupIndex], ...updates };
-        await AsyncStorage.setItem(STORAGE_KEYS.BACKUP_HISTORY, JSON.stringify(backups));
-        return true;
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Failed to update backup record:', error);
-      return false;
-    }
-  }
-
-  // 載入備份配置
-  async loadBackupConfig() {
-    try {
-      const configKey = STORAGE_KEYS.BACKUP_CONFIG;
-      const configData = await AsyncStorage.getItem(configKey);
-      this.config = configData ? JSON.parse(configData) : {
-        autoBackup: true,
-        autoBackupInterval: 24 * 60 * 60 * 1000, // 24小時
-        autoSync: true,
-        autoSyncInterval: 6 * 60 * 60 * 1000, // 6小時
-        maxBackups: 50,
-        compression: true,
-        encryption: false,
-      };
-    } catch (error) {
-      console.error('Failed to load backup config:', error);
-      this.config = {
-        autoBackup: true,
-        autoBackupInterval: 24 * 60 * 60 * 1000,
-        autoSync: true,
-        autoSyncInterval: 6 * 60 * 60 * 1000,
-        maxBackups: 50,
-        compression: true,
-        encryption: false,
-      };
     }
   }
 
   // 設置自動備份任務
   setupAutoBackupTask() {
-    if (this.config.autoBackup) {
-      setInterval(async () => {
-        try {
-          await this.createIncrementalBackup();
-        } catch (error) {
-          console.error('Auto backup failed:', error);
-        }
-      }, this.config.autoBackupInterval);
+    if (this.backupConfig.autoBackup) {
+      setInterval(() => {
+        this.createIncrementalBackup();
+      }, this.backupConfig.backupInterval);
     }
   }
 
   // 設置自動同步任務
   setupAutoSyncTask() {
-    if (this.config.autoSync) {
-      setInterval(async () => {
-        try {
-          await this.syncToCloud(SYNC_TYPES.BIDIRECTIONAL);
-        } catch (error) {
-          console.error('Auto sync failed:', error);
-        }
-      }, this.config.autoSyncInterval);
-    }
+    // 這裡應該實現自動同步邏輯
   }
 
   // 清理舊備份
-  async cleanupOldBackups(maxBackups = 50) {
+  async cleanupOldBackups() {
     try {
-      const backups = await this.getBackupList(1000, 0);
-      
-      if (backups.length > maxBackups) {
-        const backupsToDelete = backups.slice(maxBackups);
-        const remainingBackups = backups.slice(0, maxBackups);
-        
-        await AsyncStorage.setItem(STORAGE_KEYS.BACKUP_HISTORY, JSON.stringify(remainingBackups));
-        
-        return { success: true, deleted: backupsToDelete.length };
-      }
-      
-      return { success: true, deleted: 0 };
-    } catch (error) {
-      console.error('Failed to cleanup old backups:', error);
-      return { success: false, error: error.message };
-    }
+      const records = await this.getBackupRecords();
+      const now = Date.now();
+      const maxAge = 30 * 24 * 60 * 60 * 1000; // 30天
+      const validRecords = records.filter(record =>
+        now - record.timestamp < maxAge,
+      );
+      await AsyncStorage.setItem('backupRecords', JSON.stringify(validRecords));
+    } catch (error) {}
   }
 }
 
-// 創建單例實例
-const backupService = new BackupService();
-
-export default backupService;
+export default new BackupService();

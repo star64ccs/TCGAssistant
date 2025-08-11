@@ -1,5 +1,6 @@
-import apiIntegrationManager from './apiIntegrationManager';
+// 導入必要的模組
 import imageUtils from '../utils/imageUtils';
+import apiIntegrationManager from './apiIntegrationManager';
 
 // 分析服務
 class AnalysisService {
@@ -12,24 +13,20 @@ class AnalysisService {
         maxHeight: 1080,
         quality: 0.9,
       });
-
       // 驗證圖片
       const validation = await imageUtils.validateImage(processedImage);
       if (!validation.valid) {
-        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ')}`);
+        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ') }`);
       }
-
       // 調用API整合管理器
       const result = await apiIntegrationManager.callApi(
         'centeringAnalysis',
         'evaluate',
         { imageFile: processedImage, ...options },
-        { onProgress: options.onProgress }
+        { onProgress: options.onProgress },
       );
-
       return result;
     } catch (error) {
-      console.error('居中度評估失敗:', error);
       throw error;
     }
   }
@@ -43,24 +40,20 @@ class AnalysisService {
         maxHeight: 1080,
         quality: 0.9,
       });
-
       // 驗證圖片
       const validation = await imageUtils.validateImage(processedImage);
       if (!validation.valid) {
-        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ')}`);
+        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ') }`);
       }
-
       // 調用API整合管理器
       const result = await apiIntegrationManager.callApi(
         'authenticityAnalysis',
         'check',
         { imageFile: processedImage, ...options },
-        { onProgress: options.onProgress }
+        { onProgress: options.onProgress },
       );
-
       return result;
     } catch (error) {
-      console.error('真偽鑑定失敗:', error);
       throw error;
     }
   }
@@ -74,24 +67,20 @@ class AnalysisService {
         maxHeight: 1080,
         quality: 0.9,
       });
-
       // 驗證圖片
       const validation = await imageUtils.validateImage(processedImage);
       if (!validation.valid) {
-        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ')}`);
+        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ') }`);
       }
-
       // 調用API整合管理器
       const result = await apiIntegrationManager.callApi(
         'qualityAnalysis',
         'evaluate',
         { imageFile: processedImage, ...options },
-        { onProgress: options.onProgress }
+        { onProgress: options.onProgress },
       );
-
       return result;
     } catch (error) {
-      console.error('品質評估失敗:', error);
       throw error;
     }
   }
@@ -105,32 +94,26 @@ class AnalysisService {
         maxHeight: 1080,
         quality: 0.9,
       });
-
       // 驗證圖片
       const validation = await imageUtils.validateImage(processedImage);
       if (!validation.valid) {
-        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ')}`);
+        throw new Error(`圖片驗證失敗: ${validation.errors.join(', ') }`);
       }
-
       // 並行執行多個分析
       const analysisPromises = [
         this.evaluateCentering(processedImage, options),
         this.checkAuthenticity(processedImage, options),
         this.evaluateQuality(processedImage, options),
       ];
-
       const results = await Promise.allSettled(analysisPromises);
-
       // 整合結果
       const analysisResults = {
         centering: results[0].status === 'fulfilled' ? results[0].value : null,
         authenticity: results[1].status === 'fulfilled' ? results[1].value : null,
         quality: results[2].status === 'fulfilled' ? results[2].value : null,
       };
-
       // 計算綜合評分
       const overallScore = this.calculateOverallScore(analysisResults);
-
       return {
         success: true,
         data: {
@@ -141,7 +124,6 @@ class AnalysisService {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('綜合分析失敗:', error);
       throw error;
     }
   }
@@ -151,10 +133,8 @@ class AnalysisService {
     try {
       const results = [];
       const totalFiles = imageFiles.length;
-
       for (let i = 0; i < totalFiles; i++) {
         const imageFile = imageFiles[i];
-        
         // 更新進度
         if (options.onProgress) {
           options.onProgress({
@@ -163,7 +143,6 @@ class AnalysisService {
             percentage: ((i + 1) / totalFiles) * 100,
           });
         }
-
         try {
           let result;
           switch (analysisType) {
@@ -181,7 +160,6 @@ class AnalysisService {
               result = await this.comprehensiveAnalysis(imageFile, options);
               break;
           }
-
           results.push({
             success: true,
             data: result,
@@ -195,7 +173,6 @@ class AnalysisService {
           });
         }
       }
-
       return {
         success: true,
         data: results,
@@ -204,7 +181,6 @@ class AnalysisService {
         failedCount: results.filter(r => !r.success).length,
       };
     } catch (error) {
-      console.error('批量分析失敗:', error);
       throw error;
     }
   }
@@ -215,13 +191,12 @@ class AnalysisService {
       const result = await apiIntegrationManager.callApi(
         'analysisHistory',
         'getHistory',
-        { userId, filters },
-        { useCache: true }
+        { userId, filters,
+        },
+        { useCache: true },
       );
-
       return result;
     } catch (error) {
-      console.error('獲取分析歷史失敗:', error);
       throw error;
     }
   }
@@ -232,13 +207,12 @@ class AnalysisService {
       const result = await apiIntegrationManager.callApi(
         'analysisHistory',
         'saveResult',
-        { analysisData, userId },
-        { useCache: false }
+        { analysisData, userId,
+        },
+        { useCache: false },
       );
-
       return result;
     } catch (error) {
-      console.error('保存分析結果失敗:', error);
       throw error;
     }
   }
@@ -249,13 +223,12 @@ class AnalysisService {
       const result = await apiIntegrationManager.callApi(
         'analysisReport',
         'export',
-        { analysisId, format },
-        { useCache: false }
+        { analysisId, format,
+        },
+        { useCache: false },
       );
-
       return result;
     } catch (error) {
-      console.error('導出分析報告失敗:', error);
       throw error;
     }
   }
@@ -266,13 +239,12 @@ class AnalysisService {
       const result = await apiIntegrationManager.callApi(
         'analysisStats',
         'getStats',
-        { userId, period },
-        { useCache: true }
+        { userId, period,
+        },
+        { useCache: true },
       );
-
       return result;
     } catch (error) {
-      console.error('獲取分析統計失敗:', error);
       throw error;
     }
   }
@@ -351,15 +323,33 @@ class AnalysisService {
 
   // 根據評分獲取等級
   getGradeFromScore(score) {
-    if (score >= 0.9) return 'A+';
-    if (score >= 0.85) return 'A';
-    if (score >= 0.8) return 'A-';
-    if (score >= 0.75) return 'B+';
-    if (score >= 0.7) return 'B';
-    if (score >= 0.65) return 'B-';
-    if (score >= 0.6) return 'C+';
-    if (score >= 0.55) return 'C';
-    if (score >= 0.5) return 'C-';
+    if (score >= 0.9) {
+      return 'A+';
+    }
+    if (score >= 0.85) {
+      return 'A';
+    }
+    if (score >= 0.8) {
+      return 'A-';
+    }
+    if (score >= 0.75) {
+      return 'B+';
+    }
+    if (score >= 0.7) {
+      return 'B';
+    }
+    if (score >= 0.65) {
+      return 'B-';
+    }
+    if (score >= 0.6) {
+      return 'C+';
+    }
+    if (score >= 0.55) {
+      return 'C';
+    }
+    if (score >= 0.5) {
+      return 'C-';
+    }
     return 'D';
   }
 
@@ -370,12 +360,10 @@ class AnalysisService {
         'analysisTools',
         'getTools',
         {},
-        { useCache: true }
+        { useCache: true },
       );
-
       return result;
     } catch (error) {
-      console.error('獲取分析工具信息失敗:', error);
       throw error;
     }
   }
@@ -386,13 +374,12 @@ class AnalysisService {
       const result = await apiIntegrationManager.callApi(
         'analysisPreferences',
         'setPreferences',
-        { preferences },
-        { useCache: false }
+        { preferences,
+        },
+        { useCache: false },
       );
-
       return result;
     } catch (error) {
-      console.error('設置分析偏好失敗:', error);
       throw error;
     }
   }
@@ -404,15 +391,14 @@ class AnalysisService {
         'analysisPreferences',
         'getPreferences',
         {},
-        { useCache: true }
+        { useCache: true },
       );
-
       return result;
     } catch (error) {
-      console.error('獲取分析偏好失敗:', error);
       throw error;
     }
   }
 }
 
-export default new AnalysisService();
+const analysisService = new AnalysisService();
+export default analysisService;

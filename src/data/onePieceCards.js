@@ -20,7 +20,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_002',
@@ -39,7 +39,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_003',
@@ -58,7 +58,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_004',
@@ -77,7 +77,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_005',
@@ -96,7 +96,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_006',
@@ -115,7 +115,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_007',
@@ -134,7 +134,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_008',
@@ -153,7 +153,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_009',
@@ -172,7 +172,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'onepiece_op01_010',
@@ -191,7 +191,7 @@ export const onePieceCards = [
     game_type: 'onepiece',
     release_date: '2022-12-02',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   // 繼續添加更多卡牌...
   // 這裡只展示前10張Leader卡牌，實際檔案會包含完整的OP-01系列
@@ -206,7 +206,7 @@ export const onePieceSeries = [
     code: 'OP01',
     release_date: '2022-12-02',
     total_cards: 120,
-    description: 'The first One Piece Trading Card Game set featuring the Straw Hat Pirates'
+    description: 'The first One Piece Trading Card Game set featuring the Straw Hat Pirates',
   },
   {
     id: 'op02',
@@ -214,7 +214,7 @@ export const onePieceSeries = [
     code: 'OP02',
     release_date: '2023-03-10',
     total_cards: 120,
-    description: 'Features the Marineford War and Whitebeard Pirates'
+    description: 'Features the Marineford War and Whitebeard Pirates',
   },
   {
     id: 'op03',
@@ -222,7 +222,7 @@ export const onePieceSeries = [
     code: 'OP03',
     release_date: '2023-06-30',
     total_cards: 120,
-    description: 'Features the Four Emperors and their crews'
+    description: 'Features the Four Emperors and their crews',
   },
   {
     id: 'op04',
@@ -230,7 +230,7 @@ export const onePieceSeries = [
     code: 'OP04',
     release_date: '2023-09-22',
     total_cards: 120,
-    description: 'Features the World Government and Revolutionary Army'
+    description: 'Features the World Government and Revolutionary Army',
   },
   {
     id: 'op05',
@@ -238,8 +238,8 @@ export const onePieceSeries = [
     code: 'OP05',
     release_date: '2023-12-08',
     total_cards: 120,
-    description: 'Features the Worst Generation and Supernovas'
-  }
+    description: 'Features the Worst Generation and Supernovas',
+  },
 ];
 
 // 卡牌稀有度資訊
@@ -250,7 +250,7 @@ export const onePieceRarities = [
   'Super Rare',
   'Secret Rare',
   'Leader',
-  'Promo'
+  'Promo',
 ];
 
 // 卡牌類型資訊
@@ -259,7 +259,7 @@ export const onePieceTypes = [
   'Character',
   'Event',
   'Stage',
-  'Don!!'
+  'Don!!',
 ];
 
 // 卡牌顏色資訊
@@ -269,5 +269,5 @@ export const onePieceColors = [
   'Blue',
   'Purple',
   'Black',
-  'Yellow'
+  'Yellow',
 ];

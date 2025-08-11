@@ -20,7 +20,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_002',
@@ -39,7 +39,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_003',
@@ -58,7 +58,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_004',
@@ -77,7 +77,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_005',
@@ -96,7 +96,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_006',
@@ -115,7 +115,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_007',
@@ -134,7 +134,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_008',
@@ -153,7 +153,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_009',
@@ -172,7 +172,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   {
     card_id: 'magic_alpha_010',
@@ -191,7 +191,7 @@ export const magicCards = [
     game_type: 'magic',
     release_date: '1993-08-05',
     is_promo: false,
-    is_secret_rare: false
+    is_secret_rare: false,
   },
   // 繼續添加更多卡牌...
   // 這裡只展示前10張卡牌，實際檔案會包含完整的Alpha系列
@@ -206,7 +206,7 @@ export const magicSeries = [
     code: 'ALPHA',
     release_date: '1993-08-05',
     total_cards: 295,
-    description: 'The first Magic: The Gathering set ever printed'
+    description: 'The first Magic: The Gathering set ever printed',
   },
   {
     id: 'beta',
@@ -214,7 +214,7 @@ export const magicSeries = [
     code: 'BETA',
     release_date: '1993-10-04',
     total_cards: 302,
-    description: 'The second printing of the original Magic set with minor corrections'
+    description: 'The second printing of the original Magic set with minor corrections',
   },
   {
     id: 'unlimited',
@@ -222,7 +222,7 @@ export const magicSeries = [
     code: 'UNL',
     release_date: '1993-12-01',
     total_cards: 302,
-    description: 'The third printing with white borders'
+    description: 'The third printing with white borders',
   },
   {
     id: 'arabian_nights',
@@ -230,7 +230,7 @@ export const magicSeries = [
     code: 'ARN',
     release_date: '1993-12-17',
     total_cards: 78,
-    description: 'The first Magic expansion set with Arabian-themed cards'
+    description: 'The first Magic expansion set with Arabian-themed cards',
   },
   {
     id: 'antiquities',
@@ -238,8 +238,8 @@ export const magicSeries = [
     code: 'ATQ',
     release_date: '1994-03-04',
     total_cards: 85,
-    description: 'Features artifacts and the Brothers\' War storyline'
-  }
+    description: 'Features artifacts and the Brothers\' War storyline',
+  },
 ];
 
 // 卡牌稀有度資訊
@@ -249,7 +249,7 @@ export const magicRarities = [
   'Rare',
   'Mythic Rare',
   'Special',
-  'Promo'
+  'Promo',
 ];
 
 // 卡牌類型資訊
@@ -261,7 +261,7 @@ export const magicTypes = [
   'Land',
   'Planeswalker',
   'Sorcery',
-  'Tribal'
+  'Tribal',
 ];
 
 // 卡牌顏色資訊
@@ -272,7 +272,7 @@ export const magicColors = [
   'Red',
   'Green',
   'Colorless',
-  'Multicolor'
+  'Multicolor',
 ];
 
 // 卡牌子類型資訊
@@ -288,6 +288,6 @@ export const magicSubtypes = [
   'Spirit',
   'Warrior',
   'Wizard',
-  'Zombie'
+  'Zombie',
   // 還有更多子類型...
 ];

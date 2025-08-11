@@ -1,7 +1,7 @@
 module.exports = {
   preset: 'react-native',
   setupFilesAfterEnv: ['<rootDir>/src/tests/setup.js'],
-  testEnvironment: 'jsdom',
+  testEnvironment: 'node',
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
@@ -29,12 +29,12 @@ module.exports = {
     '<rootDir>/src/tests/**/*.spec.(js|jsx|ts|tsx)',
   ],
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
+    'src/**/*.{ js,jsx,ts,tsx }',
     '!src/**/*.d.ts',
     '!src/tests/**',
     '!src/**/__tests__/**',
-    '!src/**/*.stories.{js,jsx,ts,tsx}',
-    '!src/**/index.{js,jsx,ts,tsx}',
+    '!src/**/*.stories.{ js,jsx,ts,tsx }',
+    '!src/**/index.{ js,jsx,ts,tsx }',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],

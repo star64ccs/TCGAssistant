@@ -1,8 +1,5 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../../constants';
-import { collectionService, offlineCollectionService } from '../../services/collectionService';
-
 // 初始狀態
 const initialState = {
   cards: [],
@@ -17,30 +14,16 @@ export const loadCollection = createAsyncThunk(
   'collection/load',
   async (_, { rejectWithValue }) => {
     try {
-      // 嘗試從 API 獲取數據
-      const response = await collectionService.getCollection();
-      
-      // 保存到本地緩存
-      await offlineCollectionService.saveLocalCollection(response);
-      
-      return response;
-    } catch (error) {
-      console.error('Load collection from API error:', error);
-      
-      // 如果 API 失敗，嘗試從本地緩存獲取
-      try {
-        const localData = await offlineCollectionService.getLocalCollection();
-        if (localData) {
-          console.log('Using cached collection data');
-          return localData;
-        }
-      } catch (localError) {
-        console.error('Load local collection error:', localError);
+      // 從本地存儲載入收藏
+      const collectionData = await AsyncStorage.getItem('collection_data');
+      if (collectionData) {
+        return JSON.parse(collectionData);
       }
-      
+      return { cards: [], totalValue: 0, totalProfitLoss: 0 };
+    } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：新增卡牌到收藏
@@ -48,49 +31,25 @@ export const addToCollection = createAsyncThunk(
   'collection/add',
   async (cardData, { getState, rejectWithValue }) => {
     try {
-      // 嘗試通過 API 添加
-      const response = await collectionService.addToCollection(cardData);
-      
-      // 更新本地狀態
       const { collection } = getState();
+      const newCard = {
+        id: Date.now().toString(),
+        ...cardData,
+        addedAt: new Date().toISOString(),
+      };
+      const updatedCards = [...collection.cards, newCard];
       const updatedCollection = {
         ...collection,
-        cards: response.cards || [...collection.cards, response.card],
+        cards: updatedCards,
       };
 
-      await offlineCollectionService.saveLocalCollection(updatedCollection);
+      // 保存到本地存儲
+      await AsyncStorage.setItem('collection_data', JSON.stringify(updatedCollection));
       return updatedCollection;
     } catch (error) {
-      console.error('Add to collection API error:', error);
-      
-      // 如果 API 失敗，保存到本地並記錄待同步操作
-      try {
-        const { collection } = getState();
-        const newCard = {
-          id: Date.now().toString(),
-          ...cardData,
-          addedAt: new Date().toISOString(),
-          isPendingSync: true,
-        };
-        
-        const updatedCards = [...collection.cards, newCard];
-        const updatedCollection = {
-          ...collection,
-          cards: updatedCards,
-        };
-
-        await offlineCollectionService.saveLocalCollection(updatedCollection);
-        await offlineCollectionService.addPendingOperation({
-          type: 'ADD',
-          cardData: newCard
-        });
-        
-        return updatedCollection;
-      } catch (localError) {
-        return rejectWithValue(localError.message);
-      }
+      return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：從收藏移除卡牌
@@ -98,10 +57,6 @@ export const removeFromCollection = createAsyncThunk(
   'collection/remove',
   async (cardId, { getState, rejectWithValue }) => {
     try {
-      // 嘗試通過 API 移除
-      await collectionService.removeFromCollection(cardId);
-      
-      // 更新本地狀態
       const { collection } = getState();
       const updatedCards = collection.cards.filter(card => card.id !== cardId);
       const updatedCollection = {
@@ -109,34 +64,13 @@ export const removeFromCollection = createAsyncThunk(
         cards: updatedCards,
       };
 
-      await offlineCollectionService.saveLocalCollection(updatedCollection);
+      // 保存到本地存儲
+      await AsyncStorage.setItem('collection_data', JSON.stringify(updatedCollection));
       return updatedCollection;
     } catch (error) {
-      console.error('Remove from collection API error:', error);
-      
-      // 如果 API 失敗，仍然從本地移除並記錄待同步操作
-      try {
-        const { collection } = getState();
-        const cardToRemove = collection.cards.find(card => card.id === cardId);
-        const updatedCards = collection.cards.filter(card => card.id !== cardId);
-        const updatedCollection = {
-          ...collection,
-          cards: updatedCards,
-        };
-
-        await offlineCollectionService.saveLocalCollection(updatedCollection);
-        await offlineCollectionService.addPendingOperation({
-          type: 'REMOVE',
-          cardId: cardId,
-          cardData: cardToRemove
-        });
-        
-        return updatedCollection;
-      } catch (localError) {
-        return rejectWithValue(localError.message);
-      }
+      return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：更新卡牌資訊
@@ -144,48 +78,22 @@ export const updateCardInfo = createAsyncThunk(
   'collection/updateCard',
   async ({ cardId, updates }, { getState, rejectWithValue }) => {
     try {
-      // 嘗試通過 API 更新
-      await collectionService.updateCardInfo(cardId, updates);
-      
-      // 更新本地狀態
       const { collection } = getState();
-      const updatedCards = collection.cards.map(card => 
-        card.id === cardId ? { ...card, ...updates } : card
+      const updatedCards = collection.cards.map(card =>
+        card.id === cardId ? { ...card, ...updates } : card,
       );
       const updatedCollection = {
         ...collection,
         cards: updatedCards,
       };
 
-      await offlineCollectionService.saveLocalCollection(updatedCollection);
+      // 保存到本地存儲
+      await AsyncStorage.setItem('collection_data', JSON.stringify(updatedCollection));
       return updatedCollection;
     } catch (error) {
-      console.error('Update card info API error:', error);
-      
-      // 如果 API 失敗，仍然更新本地並記錄待同步操作
-      try {
-        const { collection } = getState();
-        const updatedCards = collection.cards.map(card => 
-          card.id === cardId ? { ...card, ...updates, isPendingSync: true } : card
-        );
-        const updatedCollection = {
-          ...collection,
-          cards: updatedCards,
-        };
-
-        await offlineCollectionService.saveLocalCollection(updatedCollection);
-        await offlineCollectionService.addPendingOperation({
-          type: 'UPDATE',
-          cardId: cardId,
-          updates: updates
-        });
-        
-        return updatedCollection;
-      } catch (localError) {
-        return rejectWithValue(localError.message);
-      }
+      return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：計算收藏價值
@@ -196,41 +104,43 @@ export const calculateCollectionValue = createAsyncThunk(
       const { collection } = getState();
       let totalValue = 0;
       let totalProfitLoss = 0;
-
       collection.cards.forEach(card => {
         const currentValue = card.currentPrice || 0;
         const purchasePrice = card.purchasePrice || 0;
-        
         totalValue += currentValue;
         totalProfitLoss += (currentValue - purchasePrice);
       });
-
       const updatedCollection = {
         ...collection,
         totalValue,
         totalProfitLoss,
       };
 
-      await offlineCollectionService.saveLocalCollection(updatedCollection);
+      // 保存到本地存儲
+      await AsyncStorage.setItem('collection_data', JSON.stringify(updatedCollection));
       return updatedCollection;
     } catch (error) {
-      console.error('Calculate collection value error:', error);
+      return { totalValue: 0, totalProfitLoss: 0 };
     }
-  }
+  },
 );
 
 // 異步 action：搜索收藏
 export const searchCollection = createAsyncThunk(
   'collection/search',
-  async ({ query, filters }, { rejectWithValue }) => {
+  async ({ query, filters }, { getState, rejectWithValue }) => {
     try {
-      const response = await collectionService.searchCollection(query, filters);
-      return response;
+      const { collection } = getState();
+      const filteredCards = collection.cards.filter(card => {
+        const matchesQuery = card.name.toLowerCase().includes(query.toLowerCase()) ||
+                           card.set.toLowerCase().includes(query.toLowerCase());
+        return matchesQuery;
+      });
+      return { cards: filteredCards };
     } catch (error) {
-      console.error('Search collection error:', error);
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：同步收藏數據
@@ -238,41 +148,13 @@ export const syncCollection = createAsyncThunk(
   'collection/sync',
   async (_, { getState, rejectWithValue }) => {
     try {
-      // 獲取待同步的操作
-      const pendingOps = await offlineCollectionService.getPendingOperations();
-      
-      if (pendingOps.length > 0) {
-        // 執行待同步的操作
-        for (const op of pendingOps) {
-          try {
-            switch (op.type) {
-              case 'ADD':
-                await collectionService.addToCollection(op.cardData);
-                break;
-              case 'REMOVE':
-                await collectionService.removeFromCollection(op.cardId);
-                break;
-              case 'UPDATE':
-                await collectionService.updateCardInfo(op.cardId, op.updates);
-                break;
-            }
-          } catch (opError) {
-            console.error(`Sync operation failed: ${op.type}`, opError);
-          }
-        }
-        
-        // 清除已同步的操作
-        await offlineCollectionService.clearPendingOperations();
-      }
-      
-      // 從服務器獲取最新數據
-      const response = await collectionService.syncFromServer();
-      return response;
+      // 簡化的同步邏輯 - 只返回當前狀態
+      const { collection } = getState();
+      return collection;
     } catch (error) {
-      console.error('Sync collection error:', error);
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 異步 action：切換收藏狀態
@@ -282,30 +164,27 @@ export const toggleFavorite = createAsyncThunk(
     try {
       const { collection } = getState();
       const card = collection.cards.find(c => c.id === cardId);
-      
       if (!card) {
         throw new Error('Card not found');
       }
-      
       const updates = { isFavorite: !card.isFavorite };
-      await collectionService.updateCardInfo(cardId, updates);
-      
+
       // 更新本地狀態
-      const updatedCards = collection.cards.map(c => 
-        c.id === cardId ? { ...c, ...updates } : c
+      const updatedCards = collection.cards.map(c =>
+        c.id === cardId ? { ...c, ...updates } : c,
       );
       const updatedCollection = {
         ...collection,
         cards: updatedCards,
       };
 
-      await offlineCollectionService.saveLocalCollection(updatedCollection);
+      // 保存到本地存儲
+      await AsyncStorage.setItem('collection_data', JSON.stringify(updatedCollection));
       return updatedCollection;
     } catch (error) {
-      console.error('Toggle favorite error:', error);
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 // 建立 slice
@@ -334,8 +213,7 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message;
       })
-      
-      // addToCollection
+    // addToCollection
       .addCase(addToCollection.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -348,8 +226,7 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      
-      // removeFromCollection
+    // removeFromCollection
       .addCase(removeFromCollection.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -362,8 +239,7 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      
-      // updateCardInfo
+    // updateCardInfo
       .addCase(updateCardInfo.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -376,15 +252,13 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      
-      // calculateCollectionValue
+    // calculateCollectionValue
       .addCase(calculateCollectionValue.fulfilled, (state, action) => {
         if (action.payload) {
           Object.assign(state, action.payload);
         }
       })
-      
-      // searchCollection
+    // searchCollection
       .addCase(searchCollection.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -397,8 +271,7 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      
-      // syncCollection
+    // syncCollection
       .addCase(syncCollection.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -411,8 +284,7 @@ const collectionSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      
-      // toggleFavorite
+    // toggleFavorite
       .addCase(toggleFavorite.pending, (state) => {
         state.isLoading = true;
         state.error = null;

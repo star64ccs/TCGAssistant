@@ -39,42 +39,16 @@
         "VIBRATE",
         "WAKE_LOCK"
       ],
-      "allowBackup": true,
-      "usesCleartextTraffic": true
+      "allowBackup": true
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "bundler": "metro",
-      "output": "static",
-      "build": {
-        "babel": {
-          "include": [
-            "**/*.js",
-            "**/*.jsx",
-            "**/*.ts",
-            "**/*.tsx"
-          ]
-        }
-      }
+      "bundler": "metro"
     },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "允許 $(PRODUCT_NAME) 使用相機進行卡牌辨識"
-        }
-      ],
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "允許 $(PRODUCT_NAME) 存取相簿來選擇卡牌照片"
-        }
-      ]
-    ],
+    "plugins": [],
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "12345678-1234-1234-1234-123456789abc"
       }
     },
     "owner": "tcgassistant"
