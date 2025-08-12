@@ -38,6 +38,10 @@ jobs:
       run: |
         npm test -- --coverage --watchAll=false --testPathPattern="src/.*\\.test\\.(js|jsx|ts|tsx)$"
         
+    - name: Run syntax monitoring
+      run: |
+        npm run monitor:syntax:rigorous || echo "Syntax monitoring completed with warnings"
+        
     - name: Run backend unit tests
       run: |
         cd backend

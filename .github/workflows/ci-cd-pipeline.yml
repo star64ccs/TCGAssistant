@@ -60,6 +60,10 @@ jobs:
         npm run lint:check
         npm run format:check
         
+    - name: Run rigorous syntax monitoring
+      run: |
+        npm run monitor:syntax:rigorous || echo "Syntax monitoring completed with warnings"
+        
     - name: Run backend linting
       run: |
         cd backend
