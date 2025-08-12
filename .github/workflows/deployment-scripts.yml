@@ -1,0 +1,192 @@
+name: Deployment Scripts
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Deployment platform'
+        required: true
+        type: choice
+        options:
+        - vercel
+        - netlify
+        - heroku
+        - railway
+        - render
+        - firebase
+        - aws
+        - docker
+      environment:
+        description: 'Environment'
+        required: true
+        type: choice
+        options:
+        - staging
+        - production
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build frontend
+      run: |
+        cp env.example .env
+        echo "EXPO_PUBLIC_API_URL=${{ github.event.inputs.environment == 'production' && 'https://api.tcg-assistant.com' || 'https://api-staging.tcg-assistant.com' }}" >> .env
+        npx expo export --platform web
+        
+    # Vercel 部署
+    - name: Deploy to Vercel
+      if: github.event.inputs.platform == 'vercel'
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+        vercel-args: '--prod'
+        
+    # Netlify 部署
+    - name: Deploy to Netlify
+      if: github.event.inputs.platform == 'netlify'
+      uses: nwtgck/actions-netlify@v2.0
+      with:
+        publish-dir: './web-build'
+        production-branch: main
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        deploy-message: "Deploy from GitHub Actions"
+        enable-pull-request-comment: false
+        enable-commit-comment: true
+        overwrites-pull-request-comment: true
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        
+    # Firebase 部署
+    - name: Deploy to Firebase
+      if: github.event.inputs.platform == 'firebase'
+      uses: FirebaseExtended/action-hosting-deploy@v0
+      with:
+        repoToken: '${{ secrets.GITHUB_TOKEN }}'
+        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+        channelId: live
+        projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
+      env:
+        FIREBASE_CLI_EXPERIMENTS: webframeworks
+
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Setup backend environment
+      run: |
+        cd backend
+        cp env.example .env
+        echo "NODE_ENV=${{ github.event.inputs.environment }}" >> .env
+        echo "PORT=3000" >> .env
+        
+    # Heroku 部署
+    - name: Deploy to Heroku
+      if: github.event.inputs.platform == 'heroku'
+      uses: akhileshns/heroku-deploy@v3.12.14
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        appdir: "backend"
+        
+    # Railway 部署
+    - name: Deploy to Railway
+      if: github.event.inputs.platform == 'railway'
+      run: |
+        echo "Deploying to Railway"
+        # Railway 通常通過 Git 集成自動部署
+        # 這裡可以添加 Railway CLI 部署命令
+        # npx railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        # npx railway up --service ${{ secrets.RAILWAY_SERVICE }}
+        
+    # Render 部署
+    - name: Deploy to Render
+      if: github.event.inputs.platform == 'render'
+      run: |
+        echo "Deploying to Render"
+        # Render 通常通過 Git 集成自動部署
+        # 這裡可以添加觸發部署的 API 調用
+        
+    # Docker 部署
+    - name: Build and Deploy Docker
+      if: github.event.inputs.platform == 'docker'
+      run: |
+        echo "Building Docker image"
+        docker build -t tcg-assistant-backend ./backend
+        # 推送到 Docker Hub 或其他容器註冊表
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker tag tcg-assistant-backend ${{ secrets.DOCKER_USERNAME }}/tcg-assistant-backend:${{ github.sha }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/tcg-assistant-backend:${{ github.sha }}
+
+  deploy-mobile:
+    name: Deploy Mobile App
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup Expo CLI
+      run: npm install -g @expo/cli@latest
+      
+    - name: Setup environment
+      run: |
+        cp env.example .env
+        echo "EXPO_PUBLIC_API_URL=${{ github.event.inputs.environment == 'production' && 'https://api.tcg-assistant.com' || 'https://api-staging.tcg-assistant.com' }}" >> .env
+        
+    - name: Build for EAS
+      run: |
+        npx eas build --platform android --profile ${{ github.event.inputs.environment }}
+        npx eas build --platform ios --profile ${{ github.event.inputs.environment }}
+        
+    - name: Submit to stores
+      if: github.event.inputs.environment == 'production'
+      run: |
+        npx eas submit --platform android
+        npx eas submit --platform ios

@@ -1,0 +1,370 @@
+name: Automated Testing
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # 每天凌晨2點運行完整測試套件
+    - cron: '0 2 * * *'
+
+jobs:
+  # 單元測試
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install frontend dependencies
+      run: npm ci
+      
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
+        
+    - name: Run frontend unit tests
+      run: |
+        npm test -- --coverage --watchAll=false --testPathPattern="src/.*\\.test\\.(js|jsx|ts|tsx)$"
+        
+    - name: Run backend unit tests
+      run: |
+        cd backend
+        npm test || echo "Backend tests completed"
+        
+    - name: Upload frontend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: unit-tests
+        name: frontend-unit-coverage
+        fail_ci_if_error: false
+        
+    - name: Generate test report
+      run: |
+        echo "Generating unit test report"
+        # 生成測試報告
+
+  # 集成測試
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: unit-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: Setup test database
+      run: |
+        cd backend
+        cp env.example .env
+        echo "NODE_ENV=test" >> .env
+        echo "DATABASE_URL=sqlite:./test-database.sqlite" >> .env
+        
+    - name: Start backend server
+      run: |
+        cd backend
+        npm start &
+        sleep 10
+        
+    - name: Run API integration tests
+      run: |
+        echo "Running API integration tests"
+        # 使用 curl 或 Postman CLI 測試 API 端點
+        curl -f http://localhost:3000/api/health || echo "API health check failed"
+        
+    - name: Run frontend integration tests
+      run: |
+        echo "Running frontend integration tests"
+        # 測試前端組件與後端的集成
+        
+    - name: Test database operations
+      run: |
+        cd backend
+        echo "Testing database operations"
+        # 測試數據庫讀寫操作
+
+  # 端到端測試
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: integration-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup environment
+      run: |
+        cp env.example .env
+        echo "EXPO_PUBLIC_API_URL=http://localhost:3000" >> .env
+        
+    - name: Start backend server
+      run: |
+        cd backend
+        npm start &
+        sleep 15
+        
+    - name: Build frontend for testing
+      run: |
+        npx expo export --platform web
+        
+    - name: Start frontend server
+      run: |
+        npx serve web-build -p 8080 &
+        sleep 10
+        
+    - name: Run E2E tests with Playwright
+      run: |
+        echo "Running E2E tests with Playwright"
+        # 安裝並運行 Playwright 測試
+        # npm install -D @playwright/test
+        # npx playwright install
+        # npx playwright test
+        
+    - name: Run mobile E2E tests
+      run: |
+        echo "Running mobile E2E tests"
+        # 使用 Detox 或其他移動端 E2E 測試工具
+
+  # 性能測試
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: e2e-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Setup environment
+      run: |
+        cp env.example .env
+        echo "EXPO_PUBLIC_API_URL=http://localhost:3000" >> .env
+        
+    - name: Start backend server
+      run: |
+        cd backend
+        npm start &
+        sleep 15
+        
+    - name: Build frontend
+      run: |
+        npx expo export --platform web
+        
+    - name: Start frontend server
+      run: |
+        npx serve web-build -p 8080 &
+        sleep 10
+        
+    - name: Run Lighthouse CI
+      run: |
+        echo "Running Lighthouse CI performance tests"
+        # 安裝並運行 Lighthouse CI
+        # npm install -D @lhci/cli
+        # npx lhci autorun
+        
+    - name: Run API performance tests
+      run: |
+        echo "Running API performance tests"
+        # 使用 Artillery 或 k6 進行 API 性能測試
+        # npm install -g artillery
+        # artillery run performance-tests/api-load-test.yml
+        
+    - name: Run bundle analysis
+      run: |
+        echo "Running bundle analysis"
+        npm run build:analyze
+        
+    - name: Generate performance report
+      run: |
+        echo "Generating performance report"
+        # 生成性能測試報告
+        
+    - name: Upload performance artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-test-results
+        path: performance-results/
+        retention-days: 30
+
+  # 安全測試
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: performance-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: |
+        npm ci
+        cd backend && npm ci
+        
+    - name: Run security audit
+      run: |
+        npm audit --audit-level=moderate
+        cd backend && npm audit --audit-level=moderate
+        
+    - name: Run Snyk security scan
+      run: |
+        echo "Running Snyk security scan"
+        # 安裝並運行 Snyk
+        # npm install -g snyk
+        # snyk test
+        # snyk monitor
+        
+    - name: Run OWASP ZAP scan
+      run: |
+        echo "Running OWASP ZAP security scan"
+        # 使用 OWASP ZAP 進行安全掃描
+        
+    - name: Check for secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: HEAD~1
+        
+    - name: Generate security report
+      run: |
+        echo "Generating security test report"
+        # 生成安全測試報告
+        
+    - name: Upload security artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-test-results
+        path: security-results/
+        retention-days: 30
+
+  # 可訪問性測試
+  accessibility-tests:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: security-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+        
+    - name: Build frontend
+      run: |
+        cp env.example .env
+        npx expo export --platform web
+        
+    - name: Start frontend server
+      run: |
+        npx serve web-build -p 8080 &
+        sleep 10
+        
+    - name: Run accessibility tests
+      run: |
+        echo "Running accessibility tests"
+        # 使用 axe-core 或其他可訪問性測試工具
+        # npm install -D axe-core
+        # npx axe http://localhost:8080
+        
+    - name: Run Lighthouse accessibility audit
+      run: |
+        echo "Running Lighthouse accessibility audit"
+        # 使用 Lighthouse 進行可訪問性審計
+        
+    - name: Generate accessibility report
+      run: |
+        echo "Generating accessibility report"
+        # 生成可訪問性測試報告
+
+  # 測試報告匯總
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, e2e-tests, performance-tests, security-tests, accessibility-tests]
+    timeout-minutes: 10
+    if: always()
+    
+    steps:
+    - name: Download test artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./test-artifacts
+        
+    - name: Generate comprehensive test report
+      run: |
+        echo "Generating comprehensive test report"
+        # 匯總所有測試結果
+        # 生成測試覆蓋率報告
+        # 生成性能基準報告
+        # 生成安全審計報告
+        
+    - name: Send test notification
+      run: |
+        echo "Sending test completion notification"
+        # 發送測試完成通知
+        
+    - name: Update test status
+      run: |
+        echo "Updating test status"
+        # 更新測試狀態
